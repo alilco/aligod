@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>علي عصام | ملف شخصي</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+</head>
+<body class="dark">
+  <div class="stars"></div>
+
+  <div class="theme-toggle">
+    <button onclick="toggleTheme()">تبديل الوضع</button>
+  </div>
+
+  <div class="container">
+    <header data-aos="fade-down">
+      <h1>علي عصام</h1>
+      <p class="subtitle">مطور ويب ومصمم واجهات</p>
+    </header>
+
+    <section class="about" data-aos="fade-up">
+      <h2>من أنا؟</h2>
+      <p>أنا مطور ومصمم مواقع أستخدم HTML, CSS, JS لإنشاء تجارب مميزة على الويب.</p>
+    </section>
+
+    <section class="contact" data-aos="zoom-in">
+      <h2>تواصل معي</h2>
+      <div class="social">
+        <a href="https://instagram.com/5_x_s" target="_blank" class="insta"><i class="fab fa-instagram"></i> إنستغرام</a>
+        <a href="https://www.facebook.com/share/1Bd5MdBvWG/" target="_blank" class="facebook"><i class="fab fa-facebook"></i> فيسبوك</a>
+        <a href="https://t.me/@UUYFU" target="_blank" class="telegram"><i class="fab fa-telegram"></i> تيليجرام</a>
+      </div>
+    </section>
+
+    <footer data-aos="fade-up">
+      <p>&copy; 2005</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: true });
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+    }
+  </script>
+</body>
+</html>
