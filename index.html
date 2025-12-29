@@ -33,7 +33,7 @@
             justify-content: center;
         }
 
-        /* تأثير الحقوق المتلاشي - علي عصام */
+        /* الحقوق المتلاشية - علي عصام */
         .animated-watermark {
             position: fixed;
             top: 50%;
@@ -208,7 +208,6 @@
 
     <div class="app-container">
         
-        <!-- Login -->
         <div id="view-login" class="view active">
             <div style="margin-top: 60px;">
                 <h1>مرحباً بك</h1>
@@ -223,7 +222,6 @@
             </div>
         </div>
 
-        <!-- Register -->
         <div id="view-reg" class="view">
             <h1>انضم إلينا</h1>
             <p class="subtitle">أنشئ حسابك لتنظيم مهامك</p>
@@ -238,21 +236,17 @@
             <button class="btn btn-secondary" onclick="go('view-login')" style="margin-top:12px">رجوع</button>
         </div>
 
-        <!-- Recovery -->
         <div id="view-recover" class="view">
             <h1>استعادة</h1>
             <input type="text" id="rec-user" class="input-box" placeholder="اسم المستخدم" style="text-align:center">
             <div class="pin-wrapper" id="dots-container">
                 <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
             </div>
-            <div id="rec-numpad" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; max-width:280px; margin: 0 auto">
-                <!-- Numbers by JS -->
-            </div>
+            <div id="rec-numpad" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; max-width:280px; margin: 0 auto"></div>
             <div id="rec-msg" style="margin-top:25px; text-align:center; color:var(--accent); font-weight:700; padding:15px; background:rgba(251,191,36,0.1); border-radius:12px; display:none"></div>
             <button class="btn btn-secondary" onclick="go('view-login')" style="margin-top:20px">رجوع</button>
         </div>
 
-        <!-- Schedule -->
         <div id="view-schedule" class="view">
             <h1>الجدول</h1>
             <p class="subtitle">مواعيد دروسك اليومية</p>
@@ -260,7 +254,6 @@
             <button class="fab" onclick="prepareAdd('sch')"><i data-lucide="plus"></i></button>
         </div>
 
-        <!-- Grades -->
         <div id="view-grades" class="view">
             <h1>الدرجات</h1>
             <p class="subtitle">نتائج امتحاناتك لهذا العام</p>
@@ -268,7 +261,6 @@
             <button class="fab" onclick="prepareAdd('grd')" style="background:var(--accent)"><i data-lucide="plus"></i></button>
         </div>
 
-        <!-- Add Modal -->
         <div id="view-add" class="view">
             <h1 id="add-label">إضافة</h1>
             <div id="add-inputs" style="margin-top:20px"></div>
@@ -276,17 +268,18 @@
             <button class="btn btn-secondary" onclick="back()" style="margin-top:12px">إلغاء</button>
         </div>
 
-        <!-- App Nav -->
         <nav class="navbar" id="app-nav">
-            <div class="nav-link active" onclick="tab('sch')"><i data-lucide="layout-grid"></i><span>الجدول</span></div>
-            <div class="nav-link" onclick="tab('grd')"><i data-lucide="bar-chart-3"></i><span>الدرجات</span></div>
+            <div class="nav-link" id="nav-sch" onclick="tab('sch')"><i data-lucide="layout-grid"></i><span>الجدول</span></div>
+            <div class="nav-link" id="nav-grd" onclick="tab('grd')"><i data-lucide="bar-chart-3"></i><span>الدرجات</span></div>
             <div class="nav-link" onclick="logout()"><i data-lucide="power"></i><span>خروج</span></div>
         </nav>
 
     </div>
 
     <script>
-        const DB_KEY = "_ali_essam_pro_v7_";
+        const DB_KEY = "_ali_v8_final_";
+        const SESSION_KEY = "_ali_current_user_";
+        
         let user = null, data = null, pin = "";
 
         const subs = {
@@ -294,20 +287,31 @@
             literary: ["تاريخ", "جغرافية", "اقتصاد", "رياضيات", "إسلامية", "إنكليزي", "عربي"]
         };
 
-        function resetRecovery() {
-            pin = "";
-            refreshDots();
-            document.getElementById('rec-msg').style.display = "none";
-            document.getElementById('rec-msg').innerText = "";
-            document.getElementById('rec-user').value = "";
+        // --- نظام الجلسات والتحميل ---
+        function initApp() {
+            createNumpad();
+            lucide.createIcons();
+            
+            // تحقق إذا كان المستخدم مسجلاً مسبقاً
+            const savedUser = localStorage.getItem(SESSION_KEY);
+            if (savedUser) {
+                const db = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+                if (db[savedUser]) {
+                    user = savedUser;
+                    data = db[savedUser];
+                    tab('sch');
+                    return;
+                }
+            }
+            go('view-login');
         }
 
         function go(id) {
-            // مسح بيانات الاستعادة دائماً عند التنقل
             resetRecovery();
-            
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            const target = document.getElementById(id);
+            if(target) target.classList.add('active');
+            
             const nav = document.getElementById('app-nav');
             nav.style.display = (id === 'view-schedule' || id === 'view-grades') ? 'flex' : 'none';
         }
@@ -315,10 +319,10 @@
         function tab(t) {
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             if(t === 'sch') {
-                document.querySelectorAll('.nav-link')[0].classList.add('active');
+                document.getElementById('nav-sch').classList.add('active');
                 renderSch(); go('view-schedule');
             } else {
-                document.querySelectorAll('.nav-link')[1].classList.add('active');
+                document.getElementById('nav-grd').classList.add('active');
                 renderGrd(); go('view-grades');
             }
         }
@@ -328,10 +332,15 @@
             const p = document.getElementById('r-pass').value;
             const b = document.getElementById('r-branch').value;
             const s = document.getElementById('r-pin').value;
+            
             if(!u || !p || s.length !== 4) return alert("أكمل البيانات");
+            
             const db = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+            if(db[u]) return alert("المستخدم موجود بالفعل");
+            
             db[u] = { p: btoa(p), b, pin: s, sch: [], grd: [] };
             localStorage.setItem(DB_KEY, JSON.stringify(db));
+            alert("تم إنشاء الحساب بنجاح");
             go('view-login');
         }
 
@@ -339,11 +348,31 @@
             const u = document.getElementById('l-user').value.trim();
             const p = document.getElementById('l-pass').value;
             const db = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+            
             if(db[u] && atob(db[u].p) === p) {
-                user = u; data = db[u]; tab('sch');
-            } else alert("خطأ في الدخول");
+                user = u;
+                data = db[u];
+                localStorage.setItem(SESSION_KEY, u); // حفظ الجلسة
+                tab('sch');
+            } else {
+                alert("خطأ في اسم المستخدم أو كلمة المرور");
+            }
         }
 
+        function logout() {
+            localStorage.removeItem(SESSION_KEY);
+            user = null;
+            data = null;
+            go('view-login');
+        }
+
+        function save() {
+            const db = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+            db[user] = data;
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+
+        // --- العرض والإضافة ---
         function renderSch() {
             const list = document.getElementById('list-sch');
             list.innerHTML = data.sch.length ? "" : "<p style='text-align:center; color:var(--text-muted); margin-top:50px'>لا توجد مواعيد</p>";
@@ -388,13 +417,19 @@
             go('view-add');
         }
 
-        function save() { const db = JSON.parse(localStorage.getItem(DB_KEY)); db[user] = data; localStorage.setItem(DB_KEY, JSON.stringify(db)); }
         function del(type, i) { data[type].splice(i, 1); save(); type==='sch'?renderSch():renderGrd(); }
-        function logout() { user = null; go('view-login'); }
         function back() { tab('sch'); }
+
+        // --- PIN System ---
+        function resetRecovery() {
+            pin = ""; refreshDots();
+            if(document.getElementById('rec-msg')) document.getElementById('rec-msg').style.display = "none";
+            if(document.getElementById('rec-user')) document.getElementById('rec-user').value = "";
+        }
 
         function createNumpad() {
             const grid = document.getElementById('rec-numpad');
+            if(!grid) return;
             [1,2,3,4,5,6,7,8,9,0].forEach(n => {
                 const b = document.createElement('div'); b.className = "btn btn-secondary"; b.style.padding = "15px"; b.innerText = n;
                 b.onclick = () => { if(pin.length < 4) { pin += n; refreshDots(); if(pin.length === 4) verify(); } };
@@ -410,21 +445,18 @@
 
         function verify() {
             const u = document.getElementById('rec-user').value.trim();
-            if(!u) { alert("أدخل اسم المستخدم أولاً"); pin = ""; refreshDots(); return; }
             const db = JSON.parse(localStorage.getItem(DB_KEY));
             if(db && db[u] && db[u].pin === pin) {
-                document.getElementById('rec-msg').innerText = "تمت الاستعادة بنجاح!\nكلمة المرور: " + atob(db[u].p);
+                document.getElementById('rec-msg').innerText = "تمت الاستعادة!\nكلمة المرور: " + atob(db[u].p);
                 document.getElementById('rec-msg').style.display = "block";
             } else { 
-                alert("بيانات غير صحيحة"); 
-                pin = ""; 
-                refreshDots(); 
-                document.getElementById('rec-msg').style.display = "none";
+                alert("خطأ في البيانات"); pin = ""; refreshDots(); 
             }
         }
 
-        window.onload = () => { createNumpad(); lucide.createIcons(); };
+        window.onload = initApp;
     </script>
 </body>
 </html>
 
+    
