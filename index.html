@@ -17,138 +17,139 @@
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
 
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; opacity: 0.03; font-size: 80px; font-weight: 900; pointer-events: none; white-space: nowrap; }
+        #loader { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: var(--bg); z-index: 1000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 0.5s ease;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--glass); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .app-container { width: 100%; max-width: 480px; height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 10; }
-        
         .view { display: none; padding: 20px; height: 100%; flex-direction: column; overflow-y: auto; }
         .view.active { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .input-box { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; color: #fff; width: 100%; margin-bottom: 15px; font-size: 16px; outline: none; }
+        .input-box { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; color: #fff; width: 100%; margin-bottom: 15px; font-size: 16px; outline: none; text-align: right; }
         
-        .btn { border-radius: 16px; padding: 18px; font-weight: 700; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; transition: 0.2s; }
+        .btn { border-radius: 16px; padding: 18px; font-weight: 700; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; transition: 0.2s; font-size: 16px; }
         .btn-primary { background: #fff; color: #000; }
         .btn-secondary { background: var(--glass); color: #fff; border: 1px solid var(--glass-border); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .card { background: var(--card); border: 1px solid var(--glass-border); border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
         .card-icon { width: 45px; height: 45px; background: rgba(129, 140, 248, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
-        .card-content { flex: 1; }
+        .card-content { flex: 1; text-align: right; }
         .score-badge { background: var(--primary); color: white; padding: 5px 12px; border-radius: 10px; font-weight: bold; }
 
-        .navbar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 20px; display: none; padding: 10px; justify-content: space-around; }
+        .navbar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 20px; display: none; padding: 10px; justify-content: space-around; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; flex: 1; gap: 5px; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
 
-        .fab { position: fixed; bottom: 100px; left: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .fab { position: fixed; bottom: 100px; left: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 90; }
 
         .pin-dots { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
         .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--glass-border); }
-        .dot.filled { background: var(--primary); border-color: var(--primary); }
+        .dot.filled { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 10px var(--primary); }
 
-        /* Loading Overlay */
-        #loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid var(--glass); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.03; font-size: 80px; font-weight: 900; pointer-events: none; z-index: 0; white-space: nowrap; }
     </style>
 </head>
 <body>
 
     <div id="loader">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; font-size: 14px; color: var(--text-muted);">جاري الاتصال بالسحاب...</p>
+        <p id="loader-text" style="margin-top: 15px; font-size: 14px; color: var(--text-muted);">جاري تهيئة الاتصال...</p>
+        <button id="retry-btn" class="btn btn-secondary" style="margin-top: 20px; display: none; width: auto; padding: 10px 20px;" onclick="window.location.reload()">إعادة المحاولة</button>
     </div>
 
     <div class="watermark">علي عصام</div>
 
     <div class="app-container">
-        
-        <!-- View: Login -->
+        <!-- Login View -->
         <div id="v-login" class="view">
             <div style="margin-top: 60px;">
-                <h1>بوابة الطالب</h1>
-                <p style="color: var(--text-muted); margin-bottom: 30px;">سجل دخولك للوصول لبياناتك من أي مكان</p>
+                <h1 style="text-align: right;">مرحباً بك</h1>
+                <p style="text-align: right; color: var(--text-muted); margin-bottom: 30px;">بوابة الطالب الذكية - نسخة السحاب</p>
                 <input type="text" id="l-user" class="input-box" placeholder="اسم المستخدم">
                 <input type="password" id="l-pass" class="input-box" placeholder="كلمة المرور">
-                <button class="btn btn-primary" onclick="login()">دخول</button>
-                <button class="btn btn-secondary" style="margin-top:12px" onclick="show('v-reg')">إنشاء حساب سحابي</button>
+                <button class="btn btn-primary" onclick="window.login()">تسجيل الدخول</button>
+                <button class="btn btn-secondary" style="margin-top:12px" onclick="window.show('v-reg')">إنشاء حساب جديد</button>
                 <p style="text-align:center; margin-top:25px; font-size:13px; color:var(--text-muted)">
-                    نسيت كلمة السر؟ <span onclick="show('v-rec')" style="color:#fff; cursor:pointer">استعادة الحساب</span>
+                    فقدت الدخول؟ <span onclick="window.show('v-rec')" style="color:#fff; cursor:pointer">استعادة الحساب</span>
                 </p>
             </div>
         </div>
 
-        <!-- View: Register -->
+        <!-- Register View -->
         <div id="v-reg" class="view">
-            <h1>حساب جديد</h1>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">بياناتك ستكون مشفرة وآمنة</p>
-            <input type="text" id="r-user" class="input-box" placeholder="اسم مستخدم فريد">
+            <h1 style="text-align: right;">حساب سحابي</h1>
+            <p style="text-align: right; color: var(--text-muted); margin-bottom: 20px;">بياناتك ستكون متاحة من أي جهاز</p>
+            <input type="text" id="r-user" class="input-box" placeholder="اسم مستخدم جديد">
             <input type="password" id="r-pass" class="input-box" placeholder="كلمة المرور">
             <select id="r-branch" class="input-box">
                 <option value="sci">الفرع العلمي</option>
                 <option value="lit">الفرع الأدبي</option>
             </select>
-            <input type="number" id="r-pin" class="input-box" placeholder="رمز PIN للاستعادة (4 أرقام)">
-            <button class="btn btn-primary" onclick="register()">إنشاء الحساب</button>
-            <button class="btn btn-secondary" style="margin-top:12px" onclick="show('v-login')">رجوع</button>
+            <input type="number" id="r-pin" class="input-box" placeholder="رمز PIN للأمان (4 أرقام)">
+            <button class="btn btn-primary" onclick="window.register()">تأكيد الإنشاء</button>
+            <button class="btn btn-secondary" style="margin-top:12px" onclick="window.show('v-login')">إلغاء</button>
         </div>
 
-        <!-- View: Recovery -->
-        <div id="v-rec" class="view">
-            <h1>استعادة</h1>
-            <input type="text" id="rec-user" class="input-box" placeholder="اسم المستخدم">
-            <div class="pin-dots">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-            </div>
-            <div id="numpad" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; max-width:300px; margin: 0 auto"></div>
-            <div id="result-box" style="margin-top:20px; display:none; padding:15px; background:rgba(251,191,36,0.1); border-radius:12px; text-align:center; color:var(--accent);"></div>
-            <button class="btn btn-secondary" style="margin-top:20px" onclick="show('v-login')">رجوع</button>
-        </div>
-
-        <!-- View: Content Views -->
+        <!-- Dashboard Views -->
         <div id="v-sch" class="view">
-            <h1>الجدول</h1>
+            <h1 style="text-align: right;">الجدول الدراسي</h1>
             <div id="list-sch" style="padding-bottom:120px"></div>
-            <button class="fab" onclick="prepareAdd('sch')"><i data-lucide="plus"></i></button>
+            <button class="fab" onclick="window.prepareAdd('sch')"><i data-lucide="plus"></i></button>
         </div>
 
         <div id="v-grd" class="view">
-            <h1>الدرجات</h1>
+            <h1 style="text-align: right;">سجل الدرجات</h1>
             <div id="list-grd" style="padding-bottom:120px"></div>
-            <button class="fab" onclick="prepareAdd('grd')" style="background:var(--accent)"><i data-lucide="plus"></i></button>
+            <button class="fab" onclick="window.prepareAdd('grd')" style="background:var(--accent)"><i data-lucide="plus"></i></button>
         </div>
 
-        <!-- View: Add -->
+        <!-- Add Items View -->
         <div id="v-add" class="view">
-            <h1 id="add-title">إضافة</h1>
+            <h1 id="add-title" style="text-align: right;">إضافة</h1>
             <div id="add-form" style="margin-top:20px"></div>
             <button class="btn btn-primary" id="save-btn">حفظ في السحاب</button>
-            <button class="btn btn-secondary" style="margin-top:10px" onclick="switchTab('sch')">إلغاء</button>
+            <button class="btn btn-secondary" style="margin-top:10px" onclick="window.switchTab('sch')">إلغاء</button>
         </div>
 
-        <!-- Navbar -->
+        <!-- Recovery View -->
+        <div id="v-rec" class="view">
+            <h1 style="text-align: right;">استعادة كلمة السر</h1>
+            <input type="text" id="rec-user" class="input-box" placeholder="اسم المستخدم">
+            <div class="pin-dots" id="rec-dots">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+            <div id="numpad" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; max-width:300px; margin: 0 auto"></div>
+            <div id="result-box" style="margin-top:20px; display:none; padding:15px; background:rgba(129,140,248,0.1); border-radius:12px; text-align:center; color:white; border: 1px solid var(--primary);"></div>
+            <button class="btn btn-secondary" style="margin-top:20px" onclick="window.show('v-login')">رجوع</button>
+        </div>
+
         <nav class="navbar" id="main-nav">
-            <div class="nav-item" id="n-sch" onclick="switchTab('sch')"><i data-lucide="calendar"></i><span>الجدول</span></div>
-            <div class="nav-item" id="n-grd" onclick="switchTab('grd')"><i data-lucide="award"></i><span>الدرجات</span></div>
-            <div class="nav-item" onclick="logout()"><i data-lucide="log-out"></i><span>خروج</span></div>
+            <div class="nav-item" id="n-sch" onclick="window.switchTab('sch')"><i data-lucide="calendar"></i><span>الجدول</span></div>
+            <div class="nav-item" id="n-grd" onclick="window.switchTab('grd')"><i data-lucide="award"></i><span>الدرجات</span></div>
+            <div class="nav-item" onclick="window.logout()"><i data-lucide="log-out"></i><span>خروج</span></div>
         </nav>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Firebase Configuration (Provided by environment)
+        // الالتزام بالقواعد: جلب الإعدادات
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'student-portal-v10';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'student_portal_final';
 
         let currentUser = null;
         let userData = null;
@@ -159,61 +160,74 @@
             lit: ["إسلامية", "عربي", "إنكليزي", "تاريخ", "جغرافية", "اقتصاد", "رياضيات"]
         };
 
-        // Auth Logic (Rule 3)
-        async function initAuth() {
+        // الالتزام بـ RULE 3: تسجيل الدخول أولاً
+        const startApp = async () => {
             try {
-                await signInAnonymously(auth);
-                onAuthStateChanged(auth, (user) => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        checkAutoLogin();
+                        const savedId = localStorage.getItem("ALI_AUTH_ID");
+                        if (savedId) {
+                            await autoLogin(savedId);
+                        } else {
+                            window.show('v-login');
+                            document.getElementById('loader').style.opacity = '0';
+                            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+                        }
                     }
                 });
-            } catch (e) {
-                console.error("Auth error", e);
-                document.getElementById('loader').innerHTML = "<p>فشل الاتصال بالخادم. تأكد من الإنترنت.</p>";
+            } catch (error) {
+                console.error("Firebase init failed", error);
+                document.getElementById('loader-text').innerText = "فشل الاتصال بالسحاب.";
+                document.getElementById('retry-btn').style.display = "block";
             }
-        }
+        };
 
-        async function checkAutoLogin() {
-            const saved = localStorage.getItem("PORTAL_USER_ID");
-            if (saved) {
-                const userDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', saved));
-                if (userDoc.exists()) {
-                    currentUser = saved;
-                    userData = userDoc.data();
-                    switchTab('sch');
-                } else { show('v-login'); }
-            } else { show('v-login'); }
-            document.getElementById('loader').style.display = "none";
-        }
+        const autoLogin = async (id) => {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', id);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                currentUser = id;
+                userData = snap.data();
+                window.switchTab('sch');
+            } else {
+                window.show('v-login');
+            }
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        };
 
-        window.show = function(id) {
+        window.show = (id) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             const target = document.getElementById(id);
             if(target) target.classList.add('active');
             document.getElementById('main-nav').style.display = (id === 'v-sch' || id === 'v-grd') ? 'flex' : 'none';
-            if(id === 'v-rec') resetRec();
         };
 
-        window.register = async function() {
+        window.register = async () => {
             const u = document.getElementById('r-user').value.trim().toLowerCase();
             const p = document.getElementById('r-pass').value;
             const b = document.getElementById('r-branch').value;
             const s = document.getElementById('r-pin').value;
 
-            if(!u || !p || s.length < 4) return alert("أكمل البيانات");
+            if(!u || !p || s.length !== 4) return alert("يرجى إدخال كافة البيانات بشكل صحيح (PIN 4 أرقام)");
 
             const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
             const snap = await getDoc(ref);
-            if(snap.exists()) return alert("اسم المستخدم هذا محجوز");
+            if(snap.exists()) return alert("اسم المستخدم هذا مسجل مسبقاً");
 
             userData = { p: btoa(p), b, pin: s, sch: [], grd: [] };
             await setDoc(ref, userData);
-            alert("تم إنشاء حسابك السحابي بنجاح!");
-            show('v-login');
+            alert("تم إنشاء حسابك السحابي! يمكنك الآن الدخول.");
+            window.show('v-login');
         };
 
-        window.login = async function() {
+        window.login = async () => {
             const u = document.getElementById('l-user').value.trim().toLowerCase();
             const p = document.getElementById('l-pass').value;
             
@@ -223,39 +237,39 @@
             if(snap.exists() && atob(snap.data().p) === p) {
                 currentUser = u;
                 userData = snap.data();
-                localStorage.setItem("PORTAL_USER_ID", u);
-                switchTab('sch');
+                localStorage.setItem("ALI_AUTH_ID", u);
+                window.switchTab('sch');
             } else {
-                alert("بيانات الدخول غير صحيحة");
+                alert("اسم المستخدم أو كلمة المرور غير صحيحة");
             }
         };
 
-        window.logout = function() {
-            localStorage.removeItem("PORTAL_USER_ID");
+        window.logout = () => {
+            localStorage.removeItem("ALI_AUTH_ID");
             currentUser = null;
             userData = null;
-            show('v-login');
+            window.show('v-login');
         };
 
-        window.switchTab = function(t) {
+        window.switchTab = (t) => {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             if(t === 'sch') {
                 document.getElementById('n-sch').classList.add('active');
-                renderSch(); show('v-sch');
+                renderSch(); window.show('v-sch');
             } else {
                 document.getElementById('n-grd').classList.add('active');
-                renderGrd(); show('v-grd');
+                renderGrd(); window.show('v-grd');
             }
         };
 
         function renderSch() {
             const list = document.getElementById('list-sch');
-            list.innerHTML = userData.sch.length ? "" : "<p style='text-align:center;margin-top:50px;opacity:0.5'>الجدول فارغ</p>";
+            list.innerHTML = userData.sch.length ? "" : "<p style='text-align:center;margin-top:50px;opacity:0.5'>لا توجد مواعيد مضافة</p>";
             userData.sch.forEach((item, i) => {
                 const div = document.createElement('div'); div.className = "card";
                 div.innerHTML = `<div class="card-icon"><i data-lucide="clock"></i></div>
                     <div class="card-content"><b>${item.s}</b><small>${item.t}</small></div>
-                    <div style="color:#f87171" onclick="delItem('sch', ${i})"><i data-lucide="trash-2"></i></div>`;
+                    <div style="color:#f87171" onclick="window.delItem('sch', ${i})"><i data-lucide="trash-2"></i></div>`;
                 list.appendChild(div);
             });
             lucide.createIcons();
@@ -263,19 +277,19 @@
 
         function renderGrd() {
             const list = document.getElementById('list-grd');
-            list.innerHTML = userData.grd.length ? "" : "<p style='text-align:center;margin-top:50px;opacity:0.5'>لا توجد درجات</p>";
+            list.innerHTML = userData.grd.length ? "" : "<p style='text-align:center;margin-top:50px;opacity:0.5'>لا توجد درجات مسجلة</p>";
             userData.grd.forEach((item, i) => {
                 const div = document.createElement('div'); div.className = "card";
                 div.innerHTML = `<div class="card-icon"><i data-lucide="award"></i></div>
                     <div class="card-content"><b>${item.s}</b><small>${item.e}</small></div>
                     <div class="score-badge">${item.v}</div>
-                    <div style="color:#f87171;margin-right:10px" onclick="delItem('grd', ${i})"><i data-lucide="trash-2"></i></div>`;
+                    <div style="color:#f87171;margin-right:10px" onclick="window.delItem('grd', ${i})"><i data-lucide="trash-2"></i></div>`;
                 list.appendChild(div);
             });
             lucide.createIcons();
         }
 
-        window.prepareAdd = function(type) {
+        window.prepareAdd = (type) => {
             const form = document.getElementById('add-form');
             const title = document.getElementById('add-title');
             form.innerHTML = "";
@@ -283,71 +297,69 @@
             let sel = `<select id="f-s" class="input-box">${subs.map(s=>`<option>${s}</option>`).join('')}</select>`;
 
             if(type === 'sch') {
-                title.innerText = "موعد جديد";
+                title.innerText = "إضافة درس";
                 form.innerHTML = sel + `<input type="time" id="f-t" class="input-box">`;
                 document.getElementById('save-btn').onclick = async () => {
                     userData.sch.push({ s: document.getElementById('f-s').value, t: document.getElementById('f-t').value });
-                    await commit(); switchTab('sch');
+                    await commit(); window.switchTab('sch');
                 };
             } else {
-                title.innerText = "رصد درجة";
-                form.innerHTML = sel + `<select id="f-e" class="input-box"><option>شهر 1</option><option>شهر 2</option><option>نصف السنة</option><option>وزاري</option></select>
+                title.innerText = "تسجيل درجة";
+                form.innerHTML = sel + `<select id="f-e" class="input-box"><option>شهر أول</option><option>شهر ثاني</option><option>نصف السنة</option><option>وزاري</option></select>
                 <input type="number" id="f-v" class="input-box" placeholder="الدرجة">`;
                 document.getElementById('save-btn').onclick = async () => {
                     userData.grd.push({ s: document.getElementById('f-s').value, e: document.getElementById('f-e').value, v: document.getElementById('f-v').value });
-                    await commit(); switchTab('grd');
+                    await commit(); window.switchTab('grd');
                 };
             }
-            show('v-add');
+            window.show('v-add');
         };
 
-        async function commit() {
+        const commit = async () => {
             const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser);
             await updateDoc(ref, userData);
-        }
+        };
 
-        window.delItem = async function(key, i) {
+        window.delItem = async (key, i) => {
             userData[key].splice(i, 1);
             await commit();
             key === 'sch' ? renderSch() : renderGrd();
         };
 
-        // Recovery System
-        function createNumpad() {
+        // PIN Recovery
+        const createNumpad = () => {
             const pad = document.getElementById('numpad');
             [1,2,3,4,5,6,7,8,9,0].forEach(n => {
                 const b = document.createElement('div'); b.className = "btn btn-secondary"; b.style.padding = "15px"; b.innerText = n;
                 b.onclick = () => { if(tempPin.length < 4) { tempPin += n; updateDots(); if(tempPin.length === 4) verifyRec(); } };
                 pad.appendChild(b);
             });
-            const c = document.createElement('div'); c.className="btn btn-secondary"; c.innerText="C"; c.onclick=resetRec;
+            const c = document.createElement('div'); c.className="btn btn-secondary"; c.innerText="C"; c.onclick=() => { tempPin=""; updateDots(); document.getElementById('result-box').style.display="none"; };
             pad.appendChild(c);
-        }
+        };
 
-        function updateDots() {
+        const updateDots = () => {
             document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('filled', i < tempPin.length));
-        }
+        };
 
-        async function verifyRec() {
+        const verifyRec = async () => {
             const u = document.getElementById('rec-user').value.trim().toLowerCase();
+            if(!u) return alert("أدخل اسم المستخدم أولاً");
             const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
             const snap = await getDoc(ref);
             if(snap.exists() && snap.data().pin === tempPin) {
                 const res = document.getElementById('result-box');
-                res.innerHTML = `تم التحقق!<br>كلمة المرور هي: <span style="color:#fff">${atob(snap.data().p)}</span>`;
+                res.innerHTML = `تم التحقق بنجاح!<br>كلمة المرور هي: <b style="font-size:18px">${atob(snap.data().p)}</b>`;
                 res.style.display = "block";
-            } else { alert("البيانات غير صحيحة"); resetRec(); }
-        }
-
-        window.resetRec = function() {
-            tempPin = ""; updateDots();
-            document.getElementById('result-box').style.display = "none";
-            document.getElementById('rec-user').value = "";
+            } else {
+                alert("الرمز غير صحيح أو المستخدم غير موجود");
+                tempPin = ""; updateDots();
+            }
         };
 
-        // Execution Start
+        // Start Everything
         createNumpad();
-        initAuth();
+        startApp();
         lucide.createIcons();
     </script>
 </body>
