@@ -1,53 +1,430 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>علي عصام | ملف شخصي</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بوابة الطالب - علي عصام</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #020617;
+            --card: #0f172a;
+            --primary: #818cf8;
+            --accent: #fbbf24;
+            --text: #f1f5f9;
+            --text-muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; padding: 0; 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* تأثير الحقوق المتلاشي - علي عصام */
+        .animated-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            text-align: center;
+            pointer-events: none;
+            user-select: none;
+            animation: pulseFade 6s infinite ease-in-out;
+        }
+        .animated-watermark h2 {
+            font-size: 50px;
+            color: #ffffff;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+        .animated-watermark p {
+            font-size: 22px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        @keyframes pulseFade {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            50% { opacity: 0.07; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        .view { display: none; padding: 25px; height: 100%; flex-direction: column; overflow-y: auto; background: transparent; }
+        .view.active { display: flex; animation: viewSlide 0.4s ease; }
+        @keyframes viewSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 26px; margin-bottom: 8px; font-weight: 800; text-align: right; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; text-align: right; }
+
+        .input-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 16px;
+            color: #fff;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .input-box:focus { border-color: var(--primary); background: rgba(129, 140, 248, 0.05); }
+
+        .btn {
+            border-radius: 18px;
+            padding: 18px;
+            font-weight: 700;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .btn-primary { background: #fff; color: #000; }
+        .btn-secondary { background: var(--glass); color: #fff; border: 1px solid var(--glass-border); }
+        .btn:active { transform: scale(0.97); }
+
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 22px;
+            padding: 20px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(129, 140, 248, 0.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+        .card-content { flex: 1; }
+        .card-content b { font-size: 16px; display: block; margin-bottom: 2px; }
+        .card-content span { font-size: 12px; color: var(--text-muted); }
+
+        .score-pill {
+            background: var(--primary);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: none;
+            padding: 8px;
+            justify-content: space-around;
+        }
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 700;
+            gap: 4px;
+            transition: 0.3s;
+            padding: 10px 20px;
+            border-radius: 18px;
+        }
+        .nav-link.active { color: var(--primary); background: rgba(129, 140, 248, 0.1); }
+
+        .fab {
+            position: fixed;
+            bottom: 110px;
+            left: 30px;
+            width: 62px;
+            height: 62px;
+            border-radius: 20px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 24px rgba(129, 140, 248, 0.3);
+            border: none;
+            z-index: 60;
+        }
+
+        .pin-wrapper { display: flex; gap: 15px; justify-content: center; margin: 25px 0; }
+        .p-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--glass-border); }
+        .p-dot.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
+    </style>
 </head>
-<body class="dark">
-  <div class="stars"></div>
+<body>
 
-  <div class="theme-toggle">
-    <button onclick="toggleTheme()">تبديل الوضع</button>
-  </div>
+    <div class="animated-watermark">
+        <h2>علي عصام</h2>
+        <p>@5_x_s</p>
+    </div>
 
-  <div class="container">
-    <header data-aos="fade-down">
-      <h1>علي عصام</h1>
-      <p class="subtitle">مطور ويب ومصمم واجهات</p>
-    </header>
+    <div class="app-container">
+        
+        <!-- Login -->
+        <div id="view-login" class="view active">
+            <div style="margin-top: 60px;">
+                <h1>مرحباً بك</h1>
+                <p class="subtitle">سجل دخولك لإدارة دراستك</p>
+                <input type="text" id="l-user" class="input-box" placeholder="اسم المستخدم">
+                <input type="password" id="l-pass" class="input-box" placeholder="كلمة المرور">
+                <button class="btn btn-primary" onclick="doLogin()">تسجيل الدخول</button>
+                <button class="btn btn-secondary" onclick="go('view-reg')" style="margin-top:12px">إنشاء حساب جديد</button>
+                <p style="text-align:center; margin-top:25px; font-size:13px; color:var(--text-muted)">
+                    نسيت الرمز؟ <span onclick="go('view-recover')" style="color:#fff; cursor:pointer">استعادة بـ PIN</span>
+                </p>
+            </div>
+        </div>
 
-    <section class="about" data-aos="fade-up">
-      <h2>من أنا؟</h2>
-      <p>أنا مطور ومصمم مواقع أستخدم HTML, CSS, JS لإنشاء تجارب مميزة على الويب.</p>
-    </section>
+        <!-- Register -->
+        <div id="view-reg" class="view">
+            <h1>انضم إلينا</h1>
+            <p class="subtitle">أنشئ حسابك لتنظيم مهامك</p>
+            <input type="text" id="r-user" class="input-box" placeholder="الاسم المستعار">
+            <input type="password" id="r-pass" class="input-box" placeholder="كلمة المرور">
+            <select id="r-branch" class="input-box">
+                <option value="scientific">الفرع العلمي</option>
+                <option value="literary">الفرع الأدبي</option>
+            </select>
+            <input type="password" id="r-pin" class="input-box" maxlength="4" placeholder="رمز PIN (4 أرقام)">
+            <button class="btn btn-primary" onclick="doRegister()">تأكيد الحساب</button>
+            <button class="btn btn-secondary" onclick="go('view-login')" style="margin-top:12px">رجوع</button>
+        </div>
 
-    <section class="contact" data-aos="zoom-in">
-      <h2>تواصل معي</h2>
-      <div class="social">
-        <a href="https://instagram.com/5_x_s" target="_blank" class="insta"><i class="fab fa-instagram"></i> إنستغرام</a>
-        <a href="https://www.facebook.com/share/1Bd5MdBvWG/" target="_blank" class="facebook"><i class="fab fa-facebook"></i> فيسبوك</a>
-        <a href="https://t.me/@UUYFU" target="_blank" class="telegram"><i class="fab fa-telegram"></i> تيليجرام</a>
-      </div>
-    </section>
+        <!-- Recovery -->
+        <div id="view-recover" class="view">
+            <h1>استعادة</h1>
+            <input type="text" id="rec-user" class="input-box" placeholder="اسم المستخدم" style="text-align:center">
+            <div class="pin-wrapper" id="dots-container">
+                <div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div><div class="p-dot"></div>
+            </div>
+            <div id="rec-numpad" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; max-width:280px; margin: 0 auto">
+                <!-- Numbers by JS -->
+            </div>
+            <div id="rec-msg" style="margin-top:25px; text-align:center; color:var(--accent); font-weight:700; padding:15px; background:rgba(251,191,36,0.1); border-radius:12px; display:none"></div>
+            <button class="btn btn-secondary" onclick="go('view-login')" style="margin-top:20px">رجوع</button>
+        </div>
 
-    <footer data-aos="fade-up">
-      <p>&copy; 2005</p>
-    </footer>
-  </div>
+        <!-- Schedule -->
+        <div id="view-schedule" class="view">
+            <h1>الجدول</h1>
+            <p class="subtitle">مواعيد دروسك اليومية</p>
+            <div id="list-sch" style="padding-bottom:120px"></div>
+            <button class="fab" onclick="prepareAdd('sch')"><i data-lucide="plus"></i></button>
+        </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-  <script>
-    AOS.init({ duration: 1000, once: true });
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      document.body.classList.toggle("light");
-    }
-  </script>
+        <!-- Grades -->
+        <div id="view-grades" class="view">
+            <h1>الدرجات</h1>
+            <p class="subtitle">نتائج امتحاناتك لهذا العام</p>
+            <div id="list-grd" style="padding-bottom:120px"></div>
+            <button class="fab" onclick="prepareAdd('grd')" style="background:var(--accent)"><i data-lucide="plus"></i></button>
+        </div>
+
+        <!-- Add Modal -->
+        <div id="view-add" class="view">
+            <h1 id="add-label">إضافة</h1>
+            <div id="add-inputs" style="margin-top:20px"></div>
+            <button class="btn btn-primary" id="save-action">حفظ</button>
+            <button class="btn btn-secondary" onclick="back()" style="margin-top:12px">إلغاء</button>
+        </div>
+
+        <!-- App Nav -->
+        <nav class="navbar" id="app-nav">
+            <div class="nav-link active" onclick="tab('sch')"><i data-lucide="layout-grid"></i><span>الجدول</span></div>
+            <div class="nav-link" onclick="tab('grd')"><i data-lucide="bar-chart-3"></i><span>الدرجات</span></div>
+            <div class="nav-link" onclick="logout()"><i data-lucide="power"></i><span>خروج</span></div>
+        </nav>
+
+    </div>
+
+    <script>
+        const DB_KEY = "_ali_essam_pro_v7_";
+        let user = null, data = null, pin = "";
+
+        const subs = {
+            scientific: ["رياضيات", "كيمياء", "فيزياء", "أحياء", "إسلامية", "إنكليزي", "عربي"],
+            literary: ["تاريخ", "جغرافية", "اقتصاد", "رياضيات", "إسلامية", "إنكليزي", "عربي"]
+        };
+
+        function resetRecovery() {
+            pin = "";
+            refreshDots();
+            document.getElementById('rec-msg').style.display = "none";
+            document.getElementById('rec-msg').innerText = "";
+            document.getElementById('rec-user').value = "";
+        }
+
+        function go(id) {
+            // مسح بيانات الاستعادة دائماً عند التنقل
+            resetRecovery();
+            
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            const nav = document.getElementById('app-nav');
+            nav.style.display = (id === 'view-schedule' || id === 'view-grades') ? 'flex' : 'none';
+        }
+
+        function tab(t) {
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if(t === 'sch') {
+                document.querySelectorAll('.nav-link')[0].classList.add('active');
+                renderSch(); go('view-schedule');
+            } else {
+                document.querySelectorAll('.nav-link')[1].classList.add('active');
+                renderGrd(); go('view-grades');
+            }
+        }
+
+        function doRegister() {
+            const u = document.getElementById('r-user').value.trim();
+            const p = document.getElementById('r-pass').value;
+            const b = document.getElementById('r-branch').value;
+            const s = document.getElementById('r-pin').value;
+            if(!u || !p || s.length !== 4) return alert("أكمل البيانات");
+            const db = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+            db[u] = { p: btoa(p), b, pin: s, sch: [], grd: [] };
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            go('view-login');
+        }
+
+        function doLogin() {
+            const u = document.getElementById('l-user').value.trim();
+            const p = document.getElementById('l-pass').value;
+            const db = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+            if(db[u] && atob(db[u].p) === p) {
+                user = u; data = db[u]; tab('sch');
+            } else alert("خطأ في الدخول");
+        }
+
+        function renderSch() {
+            const list = document.getElementById('list-sch');
+            list.innerHTML = data.sch.length ? "" : "<p style='text-align:center; color:var(--text-muted); margin-top:50px'>لا توجد مواعيد</p>";
+            data.sch.forEach((it, i) => {
+                const div = document.createElement('div'); div.className = "card";
+                div.innerHTML = `<div class="card-icon"><i data-lucide="clock"></i></div><div class="card-content"><b>${it.s}</b><span>${it.f} - ${it.t}</span></div><div style="color:#f87171" onclick="del('sch',${i})"><i data-lucide="trash-2" size="18"></i></div>`;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function renderGrd() {
+            const list = document.getElementById('list-grd');
+            list.innerHTML = data.grd.length ? "" : "<p style='text-align:center; color:var(--text-muted); margin-top:50px'>لم تسجل درجات</p>";
+            data.grd.forEach((it, i) => {
+                const div = document.createElement('div'); div.className = "card";
+                div.innerHTML = `<div class="card-icon"><i data-lucide="award"></i></div><div class="card-content"><b>${it.s}</b><span>${it.e}</span></div><div class="score-pill">${it.sc}</div><div style="color:#f87171; margin-right:10px" onclick="del('grd',${i})"><i data-lucide="trash-2" size="18"></i></div>`;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function prepareAdd(type) {
+            const box = document.getElementById('add-inputs');
+            const label = document.getElementById('add-label');
+            box.innerHTML = "";
+            if(type === 'sch') {
+                label.innerText = "إضافة وقت";
+                box.innerHTML = `<select id="f-s" class="input-box">${subs[data.b].map(s=>`<option>${s}</option>`).join('')}<option>استراحة</option></select><div style="display:flex;gap:10px"><input type="time" id="f-f" class="input-box"><input type="time" id="f-t" class="input-box"></div>`;
+                document.getElementById('save-action').onclick = () => {
+                    data.sch.push({ s: document.getElementById('f-s').value, f: document.getElementById('f-f').value, t: document.getElementById('f-t').value });
+                    save(); tab('sch');
+                };
+            } else {
+                label.innerText = "تسجيل درجة";
+                box.innerHTML = `<select id="f-s" class="input-box">${subs[data.b].map(s=>`<option>${s}</option>`).join('')}</select><select id="f-e" class="input-box"><option>الشهر الأول</option><option>الشهر الثاني</option><option>الشهر الثالث</option><option>نصف السنة</option></select><input type="number" id="f-sc" class="input-box" placeholder="الدرجة من 100">`;
+                document.getElementById('save-action').onclick = () => {
+                    data.grd.push({ s: document.getElementById('f-s').value, e: document.getElementById('f-e').value, sc: document.getElementById('f-sc').value });
+                    save(); tab('grd');
+                };
+            }
+            go('view-add');
+        }
+
+        function save() { const db = JSON.parse(localStorage.getItem(DB_KEY)); db[user] = data; localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+        function del(type, i) { data[type].splice(i, 1); save(); type==='sch'?renderSch():renderGrd(); }
+        function logout() { user = null; go('view-login'); }
+        function back() { tab('sch'); }
+
+        function createNumpad() {
+            const grid = document.getElementById('rec-numpad');
+            [1,2,3,4,5,6,7,8,9,0].forEach(n => {
+                const b = document.createElement('div'); b.className = "btn btn-secondary"; b.style.padding = "15px"; b.innerText = n;
+                b.onclick = () => { if(pin.length < 4) { pin += n; refreshDots(); if(pin.length === 4) verify(); } };
+                grid.appendChild(b);
+            });
+            const c = document.createElement('div'); c.className="btn btn-secondary"; c.innerText="C"; c.onclick=()=> { pin=""; refreshDots(); document.getElementById('rec-msg').style.display="none"; };
+            grid.appendChild(c);
+        }
+
+        function refreshDots() {
+            document.querySelectorAll('.p-dot').forEach((d,i) => d.className = i < pin.length ? "p-dot active" : "p-dot");
+        }
+
+        function verify() {
+            const u = document.getElementById('rec-user').value.trim();
+            if(!u) { alert("أدخل اسم المستخدم أولاً"); pin = ""; refreshDots(); return; }
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            if(db && db[u] && db[u].pin === pin) {
+                document.getElementById('rec-msg').innerText = "تمت الاستعادة بنجاح!\nكلمة المرور: " + atob(db[u].p);
+                document.getElementById('rec-msg').style.display = "block";
+            } else { 
+                alert("بيانات غير صحيحة"); 
+                pin = ""; 
+                refreshDots(); 
+                document.getElementById('rec-msg').style.display = "none";
+            }
+        }
+
+        window.onload = () => { createNumpad(); lucide.createIcons(); };
+    </script>
 </body>
 </html>
+
