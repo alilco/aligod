@@ -3,364 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة الطالب - علي عصام</title>
+    <title>بوابة الطالب - منصة علي عصام</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg: #020617;
-            --card: #0f172a;
-            --primary: #818cf8;
-            --accent: #fbbf24;
-            --text: #f1f5f9;
-            --text-muted: #64748b;
-            --glass: rgba(255, 255, 255, 0.04);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg: #030712;
+            --card: #111827;
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --accent: #f59e0b;
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10b981;
+            --error: #ef4444;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
 
+        /* Loading Screen */
         #loader { 
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            background: var(--bg); z-index: 1000; 
+            background: var(--bg); z-index: 2000; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            transition: opacity 0.5s ease;
         }
-        .spinner { width: 40px; height: 40px; border: 4px solid var(--glass); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--glass); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .app-container { width: 100%; max-width: 480px; height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 10; }
-        .view { display: none; padding: 20px; height: 100%; flex-direction: column; overflow-y: auto; }
-        .view.active { display: flex; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Main Container */
+        .app-container { width: 100%; max-width: 500px; height: 100vh; display: flex; flex-direction: column; position: relative; opacity: 0; transition: opacity 0.5s; }
+        .app-ready { opacity: 1; }
 
-        .input-box { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; color: #fff; width: 100%; margin-bottom: 15px; font-size: 16px; outline: none; text-align: right; }
-        
-        .btn { border-radius: 16px; padding: 18px; font-weight: 700; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; transition: 0.2s; font-size: 16px; }
-        .btn-primary { background: #fff; color: #000; }
-        .btn-secondary { background: var(--glass); color: #fff; border: 1px solid var(--glass-border); }
+        /* Status Bar */
+        .status-bar { padding: 8px; font-size: 10px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .indicator { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+        .online { background: var(--success); box-shadow: 0 0 8px var(--success); }
 
-        .card { background: var(--card); border: 1px solid var(--glass-border); border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
-        .card-icon { width: 45px; height: 45px; background: rgba(129, 140, 248, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
-        .card-content { flex: 1; text-align: right; }
-        .score-badge { background: var(--primary); color: white; padding: 5px 12px; border-radius: 10px; font-weight: bold; }
+        /* Views */
+        .view { display: none; padding: 25px; height: 100%; flex-direction: column; overflow-y: auto; }
+        .view.active { display: flex; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .navbar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 20px; display: none; padding: 10px; justify-content: space-around; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; flex: 1; gap: 5px; cursor: pointer; }
-        .nav-item.active { color: var(--primary); }
+        /* Auth UI */
+        .auth-card { margin-top: 40px; text-align: right; }
+        h1 { font-size: 28px; margin-bottom: 8px; font-weight: 800; }
+        .subtitle { color: var(--text-muted); margin-bottom: 35px; font-size: 14px; }
 
-        .fab { position: fixed; bottom: 100px; left: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 90; }
+        .input-group { margin-bottom: 15px; position: relative; }
+        .input-group i { position: absolute; right: 15px; top: 16px; color: var(--text-muted); width: 18px; }
+        .field { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 16px 45px 16px 15px; color: #fff; width: 100%; font-size: 15px; outline: none; text-align: right; transition: 0.3s; }
+        .field:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); }
 
-        .pin-dots { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
-        .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--glass-border); }
-        .dot.filled { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        .btn { border-radius: 16px; padding: 18px; font-weight: 700; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; transition: 0.3s; font-size: 16px; }
+        .btn-main { background: var(--primary); color: white; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
+        .btn-main:active { transform: scale(0.97); }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
 
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.03; font-size: 80px; font-weight: 900; pointer-events: none; z-index: 0; white-space: nowrap; }
+        /* Content Cards */
+        .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; transition: 0.2s; }
+        .item-icon { width: 48px; height: 48px; background: rgba(99, 102, 241, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+        .item-info { flex: 1; text-align: right; }
+        .item-info b { font-size: 17px; display: block; }
+        .item-info span { color: var(--text-muted); font-size: 12px; }
+        .item-badge { background: var(--primary); color: white; padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 14px; }
+
+        /* Bottom Nav */
+        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 25px; display: none; padding: 12px; justify-content: space-around; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; flex: 1; gap: 6px; cursor: pointer; transition: 0.3s; }
+        .nav-link.active { color: var(--primary); }
+
+        .fab { position: fixed; bottom: 105px; left: 25px; width: 62px; height: 62px; border-radius: 22px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4); z-index: 90; }
+
+        /* Recovery Pad */
+        .pin-container { display: flex; gap: 15px; justify-content: center; margin: 25px 0; }
+        .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border); }
+        .pin-dot.fill { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 12px var(--primary); }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 320px; margin: 0 auto; }
+        .num-btn { background: var(--glass); border: 1px solid var(--border); border-radius: 18px; padding: 20px; font-size: 20px; font-weight: bold; color: white; text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="loader">
         <div class="spinner"></div>
-        <p id="loader-text" style="margin-top: 15px; font-size: 14px; color: var(--text-muted);">جاري تهيئة الاتصال...</p>
-        <button id="retry-btn" class="btn btn-secondary" style="margin-top: 20px; display: none; width: auto; padding: 10px 20px;" onclick="window.location.reload()">إعادة المحاولة</button>
+        <p style="margin-top:20px; font-size:13px; color:var(--text-muted)">جاري الاتصال بقاعدة البيانات...</p>
     </div>
 
-    <div class="watermark">علي عصام</div>
+    <div class="app-container" id="app">
+        <div class="status-bar">
+            <div id="cloud-dot" class="indicator"></div>
+            <span id="cloud-label">جاري التحقق من السحابة...</span>
+        </div>
 
-    <div class="app-container">
-        <!-- Login View -->
+        <!-- View: Login -->
         <div id="v-login" class="view">
-            <div style="margin-top: 60px;">
-                <h1 style="text-align: right;">مرحباً بك</h1>
-                <p style="text-align: right; color: var(--text-muted); margin-bottom: 30px;">بوابة الطالب الذكية - نسخة السحاب</p>
-                <input type="text" id="l-user" class="input-box" placeholder="اسم المستخدم">
-                <input type="password" id="l-pass" class="input-box" placeholder="كلمة المرور">
-                <button class="btn btn-primary" onclick="window.login()">تسجيل الدخول</button>
-                <button class="btn btn-secondary" style="margin-top:12px" onclick="window.show('v-reg')">إنشاء حساب جديد</button>
-                <p style="text-align:center; margin-top:25px; font-size:13px; color:var(--text-muted)">
-                    فقدت الدخول؟ <span onclick="window.show('v-rec')" style="color:#fff; cursor:pointer">استعادة الحساب</span>
+            <div class="auth-card">
+                <h1>أهلاً بك</h1>
+                <p class="subtitle">قم بتسجيل الدخول للوصول لبياناتك السحابية</p>
+                
+                <div class="input-group">
+                    <i data-lucide="user"></i>
+                    <input type="text" id="l-user" class="field" placeholder="اسم المستخدم">
+                </div>
+                <div class="input-group">
+                    <i data-lucide="lock"></i>
+                    <input type="password" id="l-pass" class="field" placeholder="كلمة المرور">
+                </div>
+                
+                <button class="btn btn-main" onclick="core.login()">دخول للمنصة</button>
+                <button class="btn btn-ghost" style="margin-top:12px" onclick="core.show('v-reg')">ليس لديك حساب؟ سجل الآن</button>
+                
+                <p style="text-align:center; margin-top:30px; font-size:14px; color:var(--text-muted)">
+                   فقدت الوصول؟ <span onclick="core.show('v-rec')" style="color:#fff; cursor:pointer; font-weight:bold">استعادة بـ PIN</span>
                 </p>
             </div>
         </div>
 
-        <!-- Register View -->
+        <!-- View: Register -->
         <div id="v-reg" class="view">
-            <h1 style="text-align: right;">حساب سحابي</h1>
-            <p style="text-align: right; color: var(--text-muted); margin-bottom: 20px;">بياناتك ستكون متاحة من أي جهاز</p>
-            <input type="text" id="r-user" class="input-box" placeholder="اسم مستخدم جديد">
-            <input type="password" id="r-pass" class="input-box" placeholder="كلمة المرور">
-            <select id="r-branch" class="input-box">
-                <option value="sci">الفرع العلمي</option>
-                <option value="lit">الفرع الأدبي</option>
-            </select>
-            <input type="number" id="r-pin" class="input-box" placeholder="رمز PIN للأمان (4 أرقام)">
-            <button class="btn btn-primary" onclick="window.register()">تأكيد الإنشاء</button>
-            <button class="btn btn-secondary" style="margin-top:12px" onclick="window.show('v-login')">إلغاء</button>
-        </div>
-
-        <!-- Dashboard Views -->
-        <div id="v-sch" class="view">
-            <h1 style="text-align: right;">الجدول الدراسي</h1>
-            <div id="list-sch" style="padding-bottom:120px"></div>
-            <button class="fab" onclick="window.prepareAdd('sch')"><i data-lucide="plus"></i></button>
-        </div>
-
-        <div id="v-grd" class="view">
-            <h1 style="text-align: right;">سجل الدرجات</h1>
-            <div id="list-grd" style="padding-bottom:120px"></div>
-            <button class="fab" onclick="window.prepareAdd('grd')" style="background:var(--accent)"><i data-lucide="plus"></i></button>
-        </div>
-
-        <!-- Add Items View -->
-        <div id="v-add" class="view">
-            <h1 id="add-title" style="text-align: right;">إضافة</h1>
-            <div id="add-form" style="margin-top:20px"></div>
-            <button class="btn btn-primary" id="save-btn">حفظ في السحاب</button>
-            <button class="btn btn-secondary" style="margin-top:10px" onclick="window.switchTab('sch')">إلغاء</button>
-        </div>
-
-        <!-- Recovery View -->
-        <div id="v-rec" class="view">
-            <h1 style="text-align: right;">استعادة كلمة السر</h1>
-            <input type="text" id="rec-user" class="input-box" placeholder="اسم المستخدم">
-            <div class="pin-dots" id="rec-dots">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <div class="auth-card">
+                <h1>حساب جديد</h1>
+                <p class="subtitle">انضم لآلاف الطلاب وابدأ تنظيم رحلتك</p>
+                
+                <input type="text" id="r-user" class="field" placeholder="اسم المستخدم">
+                <input type="password" id="r-pass" class="field" placeholder="كلمة المرور">
+                
+                <div class="input-group">
+                    <i data-lucide="book-open"></i>
+                    <select id="r-branch" class="field">
+                        <option value="sci">الفرع العلمي</option>
+                        <option value="lit">الفرع الأدبي</option>
+                    </select>
+                </div>
+                
+                <input type="number" id="r-pin" class="field" placeholder="رمز PIN للاستعادة (4 أرقام)">
+                
+                <button class="btn btn-main" onclick="core.register()">إنشاء الحساب والمزامنة</button>
+                <button class="btn btn-ghost" style="margin-top:12px" onclick="core.show('v-login')">إلغاء</button>
             </div>
-            <div id="numpad" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; max-width:300px; margin: 0 auto"></div>
-            <div id="result-box" style="margin-top:20px; display:none; padding:15px; background:rgba(129,140,248,0.1); border-radius:12px; text-align:center; color:white; border: 1px solid var(--primary);"></div>
-            <button class="btn btn-secondary" style="margin-top:20px" onclick="window.show('v-login')">رجوع</button>
         </div>
 
-        <nav class="navbar" id="main-nav">
-            <div class="nav-item" id="n-sch" onclick="window.switchTab('sch')"><i data-lucide="calendar"></i><span>الجدول</span></div>
-            <div class="nav-item" id="n-grd" onclick="window.switchTab('grd')"><i data-lucide="award"></i><span>الدرجات</span></div>
-            <div class="nav-item" onclick="window.logout()"><i data-lucide="log-out"></i><span>خروج</span></div>
+        <!-- View: Schedule -->
+        <div id="v-sch" class="view">
+            <h1>الجدول الدراسي</h1>
+            <div id="list-sch" style="padding-bottom:120px; margin-top:10px"></div>
+            <button class="fab" onclick="core.prepAdd('sch')"><i data-lucide="plus"></i></button>
+        </div>
+
+        <!-- View: Grades -->
+        <div id="v-grd" class="view">
+            <h1>سجل الدرجات</h1>
+            <div id="list-grd" style="padding-bottom:120px; margin-top:10px"></div>
+            <button class="fab" onclick="core.prepAdd('grd')" style="background:var(--accent)"><i data-lucide="plus"></i></button>
+        </div>
+
+        <!-- View: Add -->
+        <div id="v-add" class="view">
+            <h1 id="add-title">إضافة جديدة</h1>
+            <div id="add-form" style="margin-top:20px"></div>
+            <button class="btn btn-main" id="save-btn">حفظ وتزامن</button>
+            <button class="btn btn-ghost" style="margin-top:12px" onclick="core.switchTab('sch')">رجوع</button>
+        </div>
+
+        <!-- View: Recovery -->
+        <div id="v-rec" class="view">
+            <h1>استعادة الحساب</h1>
+            <p class="subtitle">أدخل اسم المستخدم ورمز الـ PIN</p>
+            <input type="text" id="rec-user" class="field" placeholder="اسم المستخدم">
+            
+            <div class="pin-container" id="pin-dots">
+                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            </div>
+            
+            <div class="numpad" id="numpad"></div>
+            <div id="res-box" style="margin-top:25px; display:none; padding:20px; background:var(--glass); border:1px solid var(--primary); border-radius:20px; text-align:center;"></div>
+            <button class="btn btn-ghost" style="margin-top:20px" onclick="core.show('v-login')">رجوع</button>
+        </div>
+
+        <!-- Nav -->
+        <nav class="nav" id="main-nav">
+            <div class="nav-link" id="n-sch" onclick="core.switchTab('sch')"><i data-lucide="calendar"></i><span>الجدول</span></div>
+            <div class="nav-link" id="n-grd" onclick="core.switchTab('grd')"><i data-lucide="graduation-cap"></i><span>الدرجات</span></div>
+            <div class="nav-link" onclick="core.logout()"><i data-lucide="log-out"></i><span>خروج</span></div>
         </nav>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // الالتزام بالقواعد: جلب الإعدادات
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'student_portal_final';
+        let db, auth, cloud = false;
+        let user = null, data = null, pinIn = "";
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ali_essam_v3_global';
 
-        let currentUser = null;
-        let userData = null;
-        let tempPin = "";
-
-        const subjects = {
-            sci: ["إسلامية", "عربي", "إنكليزي", "أحياء", "رياضيات", "كيمياء", "فيزياء"],
-            lit: ["إسلامية", "عربي", "إنكليزي", "تاريخ", "جغرافية", "اقتصاد", "رياضيات"]
-        };
-
-        // الالتزام بـ RULE 3: تسجيل الدخول أولاً
-        const startApp = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+        const core = {
+            async start() {
+                this.buildPad();
+                this.show('v-login');
+                document.getElementById('app').classList.add('app-ready');
                 
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        const savedId = localStorage.getItem("ALI_AUTH_ID");
-                        if (savedId) {
-                            await autoLogin(savedId);
+                try {
+                    const config = JSON.parse(__firebase_config);
+                    const app = initializeApp(config);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    await signInAnonymously(auth);
+                    cloud = true;
+                    document.getElementById('cloud-dot').classList.add('online');
+                    document.getElementById('cloud-label').innerText = "متصل سحابياً ✓";
+                } catch (e) {
+                    document.getElementById('cloud-label').innerText = "نمط أوفلاين (محدود)";
+                }
+
+                const saved = localStorage.getItem("SID");
+                if (saved) {
+                    const local = JSON.parse(localStorage.getItem("LDB") || "{}");
+                    if (local[saved]) {
+                        user = saved; data = local[saved];
+                        this.switchTab('sch');
+                    }
+                }
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 600);
+            },
+
+            show(id) {
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+                document.getElementById('main-nav').style.display = (['v-sch', 'v-grd'].includes(id)) ? 'flex' : 'none';
+                if(window.lucide) lucide.createIcons();
+            },
+
+            async register() {
+                const u = document.getElementById('r-user').value.trim().toLowerCase();
+                const p = document.getElementById('r-pass').value;
+                const b = document.getElementById('r-branch').value;
+                const s = document.getElementById('r-pin').value;
+
+                if(!u || !p || s.length !== 4) return alert("يرجى إكمال البيانات بدقة");
+
+                const obj = { p: btoa(p), b, pin: s, sch: [], grd: [] };
+
+                if(cloud) {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
+                    if((await getDoc(ref)).exists()) return alert("عذراً، هذا الاسم محجوز بالفعل");
+                    await setDoc(ref, obj);
+                }
+
+                this.localSync(u, obj);
+                alert("تم إنشاء حسابك بنجاح! يمكنك الآن الدخول.");
+                this.show('v-login');
+            },
+
+            async login() {
+                const u = document.getElementById('l-user').value.trim().toLowerCase();
+                const p = document.getElementById('l-pass').value;
+                if(!u || !p) return;
+
+                let target = null;
+                if(cloud) {
+                    const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u));
+                    if(snap.exists()) target = snap.data();
+                }
+                if(!target) target = JSON.parse(localStorage.getItem("LDB") || "{}")[u];
+
+                if(target && atob(target.p) === p) {
+                    user = u; data = target;
+                    this.localSync(u, target);
+                    localStorage.setItem("SID", u);
+                    this.switchTab('sch');
+                } else {
+                    alert("خطأ في البيانات أو لا توجد مزامنة");
+                }
+            },
+
+            localSync(u, d) {
+                let ldb = JSON.parse(localStorage.getItem("LDB") || "{}");
+                ldb[u] = d;
+                localStorage.setItem("LDB", JSON.stringify(ldb));
+            },
+
+            async commit() {
+                this.localSync(user, data);
+                if(cloud) {
+                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user), data); } catch(e){}
+                }
+            },
+
+            switchTab(t) {
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                document.getElementById('n-' + t).classList.add('active');
+                t === 'sch' ? this.renderSch() : this.renderGrd();
+                this.show('v-' + t);
+            },
+
+            renderSch() {
+                const list = document.getElementById('list-sch');
+                list.innerHTML = data.sch.length ? "" : `<div style="text-align:center; padding:40px; opacity:0.3"><i data-lucide="calendar-x" style="width:50px; height:50px; margin-bottom:10px"></i><p>جدولك فارغ حالياً</p></div>`;
+                data.sch.forEach((it, i) => {
+                    const d = document.createElement('div'); d.className = "item-card";
+                    d.innerHTML = `<div class="item-icon"><i data-lucide="clock"></i></div><div class="item-info"><b>${it.s}</b><span>الوقت: ${it.t}</span></div><div style="color:var(--error)" onclick="window.core.del('sch',${i})"><i data-lucide="trash"></i></div>`;
+                    list.appendChild(d);
+                });
+                lucide.createIcons();
+            },
+
+            renderGrd() {
+                const list = document.getElementById('list-grd');
+                list.innerHTML = data.grd.length ? "" : `<div style="text-align:center; padding:40px; opacity:0.3"><i data-lucide="award" style="width:50px; height:50px; margin-bottom:10px"></i><p>لا توجد درجات مسجلة</p></div>`;
+                data.grd.forEach((it, i) => {
+                    const d = document.createElement('div'); d.className = "item-card";
+                    d.innerHTML = `<div class="item-icon"><i data-lucide="check-circle"></i></div><div class="item-info"><b>${it.s}</b><span>${it.e}</span></div><div class="item-badge">${it.v}</div><div style="color:var(--error); margin-right:12px" onclick="window.core.del('grd',${i})"><i data-lucide="trash"></i></div>`;
+                    list.appendChild(d);
+                });
+                lucide.createIcons();
+            },
+
+            prepAdd(type) {
+                const box = document.getElementById('add-form'); box.innerHTML = "";
+                const subs = { 
+                    sci: ["إسلامية", "عربي", "إنكليزي", "أحياء", "رياضيات", "كيمياء", "فيزياء"], 
+                    lit: ["إسلامية", "عربي", "إنكليزي", "تاريخ", "جغرافية", "اقتصاد", "رياضيات"] 
+                };
+                const myList = subs[data.b] || subs.sci;
+                let sel = `<select id="f-s" class="field">${myList.map(s=>`<option>${s}</option>`).join('')}</select>`;
+
+                if(type === 'sch') {
+                    document.getElementById('add-title').innerText = "إضافة درس";
+                    box.innerHTML = sel + `<input type="time" id="f-t" class="field" style="margin-top:10px">`;
+                    document.getElementById('save-btn').onclick = async () => {
+                        data.sch.push({ s: document.getElementById('f-s').value, t: document.getElementById('f-t').value });
+                        await this.commit(); this.switchTab('sch');
+                    };
+                } else {
+                    document.getElementById('add-title').innerText = "إضافة درجة";
+                    box.innerHTML = sel + `<select id="f-e" class="field" style="margin-top:10px"><option>شهر 1</option><option>شهر 2</option><option>نصف السنة</option><option>وزاري</option></select><input type="number" id="f-v" class="field" style="margin-top:10px" placeholder="الدرجة">`;
+                    document.getElementById('save-btn').onclick = async () => {
+                        data.grd.push({ s: document.getElementById('f-s').value, e: document.getElementById('f-e').value, v: document.getElementById('f-v').value });
+                        await this.commit(); this.switchTab('grd');
+                    };
+                }
+                this.show('v-add');
+            },
+
+            async del(key, i) {
+                data[key].splice(i, 1);
+                await this.commit();
+                key === 'sch' ? this.renderSch() : this.renderGrd();
+            },
+
+            logout() { localStorage.removeItem("SID"); location.reload(); },
+
+            buildPad() {
+                const p = document.getElementById('numpad');
+                [1,2,3,4,5,6,7,8,9,0].forEach(n => {
+                    const b = document.createElement('div'); b.className = "num-btn"; b.innerText = n;
+                    b.onclick = () => this.press(n); p.appendChild(b);
+                });
+            },
+
+            async press(n) {
+                if(pinIn.length < 4) {
+                    pinIn += n;
+                    document.querySelectorAll('.pin-dot').forEach((d, i) => d.classList.toggle('fill', i < pinIn.length));
+                    if(pinIn.length === 4) {
+                        const u = document.getElementById('rec-user').value.trim().toLowerCase();
+                        let target = null;
+                        if(cloud) target = (await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u))).data();
+                        if(!target) target = JSON.parse(localStorage.getItem("LDB") || "{}")[u];
+
+                        if(target && target.pin === pinIn) {
+                            const res = document.getElementById('res-box');
+                            res.innerHTML = `تم التحقق! كلمة مرورك هي:<br><b style="color:var(--primary); font-size:24px">${atob(target.p)}</b>`;
+                            res.style.display = "block";
                         } else {
-                            window.show('v-login');
-                            document.getElementById('loader').style.opacity = '0';
-                            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+                            alert("البيانات خاطئة"); pinIn = ""; 
+                            document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('fill'));
                         }
                     }
-                });
-            } catch (error) {
-                console.error("Firebase init failed", error);
-                document.getElementById('loader-text').innerText = "فشل الاتصال بالسحاب.";
-                document.getElementById('retry-btn').style.display = "block";
+                }
             }
         };
 
-        const autoLogin = async (id) => {
-            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', id);
-            const snap = await getDoc(ref);
-            if (snap.exists()) {
-                currentUser = id;
-                userData = snap.data();
-                window.switchTab('sch');
-            } else {
-                window.show('v-login');
-            }
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-        };
-
-        window.show = (id) => {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            const target = document.getElementById(id);
-            if(target) target.classList.add('active');
-            document.getElementById('main-nav').style.display = (id === 'v-sch' || id === 'v-grd') ? 'flex' : 'none';
-        };
-
-        window.register = async () => {
-            const u = document.getElementById('r-user').value.trim().toLowerCase();
-            const p = document.getElementById('r-pass').value;
-            const b = document.getElementById('r-branch').value;
-            const s = document.getElementById('r-pin').value;
-
-            if(!u || !p || s.length !== 4) return alert("يرجى إدخال كافة البيانات بشكل صحيح (PIN 4 أرقام)");
-
-            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
-            const snap = await getDoc(ref);
-            if(snap.exists()) return alert("اسم المستخدم هذا مسجل مسبقاً");
-
-            userData = { p: btoa(p), b, pin: s, sch: [], grd: [] };
-            await setDoc(ref, userData);
-            alert("تم إنشاء حسابك السحابي! يمكنك الآن الدخول.");
-            window.show('v-login');
-        };
-
-        window.login = async () => {
-            const u = document.getElementById('l-user').value.trim().toLowerCase();
-            const p = document.getElementById('l-pass').value;
-            
-            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
-            const snap = await getDoc(ref);
-            
-            if(snap.exists() && atob(snap.data().p) === p) {
-                currentUser = u;
-                userData = snap.data();
-                localStorage.setItem("ALI_AUTH_ID", u);
-                window.switchTab('sch');
-            } else {
-                alert("اسم المستخدم أو كلمة المرور غير صحيحة");
-            }
-        };
-
-        window.logout = () => {
-            localStorage.removeItem("ALI_AUTH_ID");
-            currentUser = null;
-            userData = null;
-            window.show('v-login');
-        };
-
-        window.switchTab = (t) => {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(t === 'sch') {
-                document.getElementById('n-sch').classList.add('active');
-                renderSch(); window.show('v-sch');
-            } else {
-                document.getElementById('n-grd').classList.add('active');
-                renderGrd(); window.show('v-grd');
-            }
-        };
-
-        function renderSch() {
-            const list = document.getElementById('list-sch');
-            list.innerHTML = userData.sch.length ? "" : "<p style='text-align:center;margin-top:50px;opacity:0.5'>لا توجد مواعيد مضافة</p>";
-            userData.sch.forEach((item, i) => {
-                const div = document.createElement('div'); div.className = "card";
-                div.innerHTML = `<div class="card-icon"><i data-lucide="clock"></i></div>
-                    <div class="card-content"><b>${item.s}</b><small>${item.t}</small></div>
-                    <div style="color:#f87171" onclick="window.delItem('sch', ${i})"><i data-lucide="trash-2"></i></div>`;
-                list.appendChild(div);
-            });
-            lucide.createIcons();
-        }
-
-        function renderGrd() {
-            const list = document.getElementById('list-grd');
-            list.innerHTML = userData.grd.length ? "" : "<p style='text-align:center;margin-top:50px;opacity:0.5'>لا توجد درجات مسجلة</p>";
-            userData.grd.forEach((item, i) => {
-                const div = document.createElement('div'); div.className = "card";
-                div.innerHTML = `<div class="card-icon"><i data-lucide="award"></i></div>
-                    <div class="card-content"><b>${item.s}</b><small>${item.e}</small></div>
-                    <div class="score-badge">${item.v}</div>
-                    <div style="color:#f87171;margin-right:10px" onclick="window.delItem('grd', ${i})"><i data-lucide="trash-2"></i></div>`;
-                list.appendChild(div);
-            });
-            lucide.createIcons();
-        }
-
-        window.prepareAdd = (type) => {
-            const form = document.getElementById('add-form');
-            const title = document.getElementById('add-title');
-            form.innerHTML = "";
-            const subs = subjects[userData.b];
-            let sel = `<select id="f-s" class="input-box">${subs.map(s=>`<option>${s}</option>`).join('')}</select>`;
-
-            if(type === 'sch') {
-                title.innerText = "إضافة درس";
-                form.innerHTML = sel + `<input type="time" id="f-t" class="input-box">`;
-                document.getElementById('save-btn').onclick = async () => {
-                    userData.sch.push({ s: document.getElementById('f-s').value, t: document.getElementById('f-t').value });
-                    await commit(); window.switchTab('sch');
-                };
-            } else {
-                title.innerText = "تسجيل درجة";
-                form.innerHTML = sel + `<select id="f-e" class="input-box"><option>شهر أول</option><option>شهر ثاني</option><option>نصف السنة</option><option>وزاري</option></select>
-                <input type="number" id="f-v" class="input-box" placeholder="الدرجة">`;
-                document.getElementById('save-btn').onclick = async () => {
-                    userData.grd.push({ s: document.getElementById('f-s').value, e: document.getElementById('f-e').value, v: document.getElementById('f-v').value });
-                    await commit(); window.switchTab('grd');
-                };
-            }
-            window.show('v-add');
-        };
-
-        const commit = async () => {
-            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser);
-            await updateDoc(ref, userData);
-        };
-
-        window.delItem = async (key, i) => {
-            userData[key].splice(i, 1);
-            await commit();
-            key === 'sch' ? renderSch() : renderGrd();
-        };
-
-        // PIN Recovery
-        const createNumpad = () => {
-            const pad = document.getElementById('numpad');
-            [1,2,3,4,5,6,7,8,9,0].forEach(n => {
-                const b = document.createElement('div'); b.className = "btn btn-secondary"; b.style.padding = "15px"; b.innerText = n;
-                b.onclick = () => { if(tempPin.length < 4) { tempPin += n; updateDots(); if(tempPin.length === 4) verifyRec(); } };
-                pad.appendChild(b);
-            });
-            const c = document.createElement('div'); c.className="btn btn-secondary"; c.innerText="C"; c.onclick=() => { tempPin=""; updateDots(); document.getElementById('result-box').style.display="none"; };
-            pad.appendChild(c);
-        };
-
-        const updateDots = () => {
-            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('filled', i < tempPin.length));
-        };
-
-        const verifyRec = async () => {
-            const u = document.getElementById('rec-user').value.trim().toLowerCase();
-            if(!u) return alert("أدخل اسم المستخدم أولاً");
-            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
-            const snap = await getDoc(ref);
-            if(snap.exists() && snap.data().pin === tempPin) {
-                const res = document.getElementById('result-box');
-                res.innerHTML = `تم التحقق بنجاح!<br>كلمة المرور هي: <b style="font-size:18px">${atob(snap.data().p)}</b>`;
-                res.style.display = "block";
-            } else {
-                alert("الرمز غير صحيح أو المستخدم غير موجود");
-                tempPin = ""; updateDots();
-            }
-        };
-
-        // Start Everything
-        createNumpad();
-        startApp();
-        lucide.createIcons();
+        window.core = core;
+        window.onload = () => core.start();
     </script>
 </body>
 </html>
