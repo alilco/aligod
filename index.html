@@ -3,393 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة الطالب - منصة علي عصام</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>منصة علي عصام التعليمية</title>
+    <!-- استدعاء المكتبات عبر روابط CDN موثوقة ومدعومة عالمياً -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
     <style>
         :root {
-            --bg: #030712;
-            --card: #111827;
-            --primary: #6366f1;
-            --secondary: #4f46e5;
-            --accent: #f59e0b;
-            --text: #f9fafb;
-            --text-muted: #9ca3af;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --success: #10b981;
-            --error: #ef4444;
+            --primary: #4f46e5;
+            --bg: #0b0f1a;
+            --card: #161b2a;
+            --text: #ffffff;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* Loading Screen */
-        #loader { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            background: var(--bg); z-index: 2000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        }
-        .spinner { width: 40px; height: 40px; border: 3px solid var(--glass); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .app-shell { width: 100%; max-width: 500px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; border-left: 1px solid var(--border); border-right: 1px solid var(--border); position: relative; }
+        
+        /* شريط الحالة العلوي */
+        .status-header { padding: 12px; font-size: 12px; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .indicator { width: 8px; height: 8px; border-radius: 50%; background: #475569; }
+        .indicator.active { background: #10b981; box-shadow: 0 0 10px #10b981; }
+
+        /* شاشة التحميل */
+        #splash { position: absolute; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .loader { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Main Container */
-        .app-container { width: 100%; max-width: 500px; height: 100vh; display: flex; flex-direction: column; position: relative; opacity: 0; transition: opacity 0.5s; }
-        .app-ready { opacity: 1; }
-
-        /* Status Bar */
-        .status-bar { padding: 8px; font-size: 10px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .indicator { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
-        .online { background: var(--success); box-shadow: 0 0 8px var(--success); }
-
-        /* Views */
-        .view { display: none; padding: 25px; height: 100%; flex-direction: column; overflow-y: auto; }
+        /* الشاشات */
+        .view { display: none; padding: 25px; flex: 1; overflow-y: auto; flex-direction: column; }
         .view.active { display: flex; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Auth UI */
-        .auth-card { margin-top: 40px; text-align: right; }
-        h1 { font-size: 28px; margin-bottom: 8px; font-weight: 800; }
-        .subtitle { color: var(--text-muted); margin-bottom: 35px; font-size: 14px; }
+        /* نماذج الإدخال */
+        h1 { font-size: 26px; margin-bottom: 20px; text-align: right; }
+        .input-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #fff; width: 100%; margin-bottom: 15px; font-size: 16px; outline: none; text-align: right; }
+        .btn { border-radius: 12px; padding: 16px; font-weight: bold; border: none; cursor: pointer; width: 100%; font-size: 16px; transition: 0.3s; margin-top: 10px; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-sub { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
 
-        .input-group { margin-bottom: 15px; position: relative; }
-        .input-group i { position: absolute; right: 15px; top: 16px; color: var(--text-muted); width: 18px; }
-        .field { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 16px 45px 16px 15px; color: #fff; width: 100%; font-size: 15px; outline: none; text-align: right; transition: 0.3s; }
-        .field:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); }
+        /* البطاقات */
+        .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .item-info { text-align: right; }
+        .item-info b { display: block; font-size: 16px; }
+        .item-info span { color: var(--text-dim); font-size: 12px; }
 
-        .btn { border-radius: 16px; padding: 18px; font-weight: 700; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; transition: 0.3s; font-size: 16px; }
-        .btn-main { background: var(--primary); color: white; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
-        .btn-main:active { transform: scale(0.97); }
-        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
-
-        /* Content Cards */
-        .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; transition: 0.2s; }
-        .item-icon { width: 48px; height: 48px; background: rgba(99, 102, 241, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
-        .item-info { flex: 1; text-align: right; }
-        .item-info b { font-size: 17px; display: block; }
-        .item-info span { color: var(--text-muted); font-size: 12px; }
-        .item-badge { background: var(--primary); color: white; padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 14px; }
-
-        /* Bottom Nav */
-        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 25px; display: none; padding: 12px; justify-content: space-around; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; flex: 1; gap: 6px; cursor: pointer; transition: 0.3s; }
-        .nav-link.active { color: var(--primary); }
-
-        .fab { position: fixed; bottom: 105px; left: 25px; width: 62px; height: 62px; border-radius: 22px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4); z-index: 90; }
-
-        /* Recovery Pad */
-        .pin-container { display: flex; gap: 15px; justify-content: center; margin: 25px 0; }
-        .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border); }
-        .pin-dot.fill { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 12px var(--primary); }
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 320px; margin: 0 auto; }
-        .num-btn { background: var(--glass); border: 1px solid var(--border); border-radius: 18px; padding: 20px; font-size: 20px; font-weight: bold; color: white; text-align: center; cursor: pointer; }
+        /* التنقل */
+        .bottom-nav { position: absolute; bottom: 20px; left: 15px; right: 15px; background: rgba(22, 27, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 20px; display: none; padding: 12px; justify-content: space-around; }
+        .nav-tab { color: var(--text-dim); text-align: center; font-size: 11px; flex: 1; cursor: pointer; }
+        .nav-tab.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <p style="margin-top:20px; font-size:13px; color:var(--text-muted)">جاري الاتصال بقاعدة البيانات...</p>
+<div id="splash">
+    <div class="loader"></div>
+    <p style="margin-top:20px; color:var(--text-dim)">جاري الاتصال بسحابة علي عصام...</p>
+</div>
+
+<div class="app-shell">
+    <div class="status-header">
+        <div id="cloud-status" class="indicator"></div>
+        <span id="cloud-label">فحص الاتصال...</span>
     </div>
 
-    <div class="app-container" id="app">
-        <div class="status-bar">
-            <div id="cloud-dot" class="indicator"></div>
-            <span id="cloud-label">جاري التحقق من السحابة...</span>
-        </div>
-
-        <!-- View: Login -->
-        <div id="v-login" class="view">
-            <div class="auth-card">
-                <h1>أهلاً بك</h1>
-                <p class="subtitle">قم بتسجيل الدخول للوصول لبياناتك السحابية</p>
-                
-                <div class="input-group">
-                    <i data-lucide="user"></i>
-                    <input type="text" id="l-user" class="field" placeholder="اسم المستخدم">
-                </div>
-                <div class="input-group">
-                    <i data-lucide="lock"></i>
-                    <input type="password" id="l-pass" class="field" placeholder="كلمة المرور">
-                </div>
-                
-                <button class="btn btn-main" onclick="core.login()">دخول للمنصة</button>
-                <button class="btn btn-ghost" style="margin-top:12px" onclick="core.show('v-reg')">ليس لديك حساب؟ سجل الآن</button>
-                
-                <p style="text-align:center; margin-top:30px; font-size:14px; color:var(--text-muted)">
-                   فقدت الوصول؟ <span onclick="core.show('v-rec')" style="color:#fff; cursor:pointer; font-weight:bold">استعادة بـ PIN</span>
-                </p>
-            </div>
-        </div>
-
-        <!-- View: Register -->
-        <div id="v-reg" class="view">
-            <div class="auth-card">
-                <h1>حساب جديد</h1>
-                <p class="subtitle">انضم لآلاف الطلاب وابدأ تنظيم رحلتك</p>
-                
-                <input type="text" id="r-user" class="field" placeholder="اسم المستخدم">
-                <input type="password" id="r-pass" class="field" placeholder="كلمة المرور">
-                
-                <div class="input-group">
-                    <i data-lucide="book-open"></i>
-                    <select id="r-branch" class="field">
-                        <option value="sci">الفرع العلمي</option>
-                        <option value="lit">الفرع الأدبي</option>
-                    </select>
-                </div>
-                
-                <input type="number" id="r-pin" class="field" placeholder="رمز PIN للاستعادة (4 أرقام)">
-                
-                <button class="btn btn-main" onclick="core.register()">إنشاء الحساب والمزامنة</button>
-                <button class="btn btn-ghost" style="margin-top:12px" onclick="core.show('v-login')">إلغاء</button>
-            </div>
-        </div>
-
-        <!-- View: Schedule -->
-        <div id="v-sch" class="view">
-            <h1>الجدول الدراسي</h1>
-            <div id="list-sch" style="padding-bottom:120px; margin-top:10px"></div>
-            <button class="fab" onclick="core.prepAdd('sch')"><i data-lucide="plus"></i></button>
-        </div>
-
-        <!-- View: Grades -->
-        <div id="v-grd" class="view">
-            <h1>سجل الدرجات</h1>
-            <div id="list-grd" style="padding-bottom:120px; margin-top:10px"></div>
-            <button class="fab" onclick="core.prepAdd('grd')" style="background:var(--accent)"><i data-lucide="plus"></i></button>
-        </div>
-
-        <!-- View: Add -->
-        <div id="v-add" class="view">
-            <h1 id="add-title">إضافة جديدة</h1>
-            <div id="add-form" style="margin-top:20px"></div>
-            <button class="btn btn-main" id="save-btn">حفظ وتزامن</button>
-            <button class="btn btn-ghost" style="margin-top:12px" onclick="core.switchTab('sch')">رجوع</button>
-        </div>
-
-        <!-- View: Recovery -->
-        <div id="v-rec" class="view">
-            <h1>استعادة الحساب</h1>
-            <p class="subtitle">أدخل اسم المستخدم ورمز الـ PIN</p>
-            <input type="text" id="rec-user" class="field" placeholder="اسم المستخدم">
-            
-            <div class="pin-container" id="pin-dots">
-                <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-            </div>
-            
-            <div class="numpad" id="numpad"></div>
-            <div id="res-box" style="margin-top:25px; display:none; padding:20px; background:var(--glass); border:1px solid var(--primary); border-radius:20px; text-align:center;"></div>
-            <button class="btn btn-ghost" style="margin-top:20px" onclick="core.show('v-login')">رجوع</button>
-        </div>
-
-        <!-- Nav -->
-        <nav class="nav" id="main-nav">
-            <div class="nav-link" id="n-sch" onclick="core.switchTab('sch')"><i data-lucide="calendar"></i><span>الجدول</span></div>
-            <div class="nav-link" id="n-grd" onclick="core.switchTab('grd')"><i data-lucide="graduation-cap"></i><span>الدرجات</span></div>
-            <div class="nav-link" onclick="core.logout()"><i data-lucide="log-out"></i><span>خروج</span></div>
-        </nav>
+    <!-- Login -->
+    <div id="v-login" class="view">
+        <h1>تسجيل الدخول</h1>
+        <input type="text" id="l-u" class="input-box" placeholder="اسم المستخدم">
+        <input type="password" id="l-p" class="input-box" placeholder="كلمة المرور">
+        <button class="btn btn-main" onclick="portal.login()">دخول</button>
+        <button class="btn btn-sub" onclick="portal.go('v-reg')">إنشاء حساب جديد</button>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    <!-- Register -->
+    <div id="v-reg" class="view">
+        <h1>حساب جديد</h1>
+        <input type="text" id="r-u" class="input-box" placeholder="اختر اسم مستخدم">
+        <input type="password" id="r-p" class="input-box" placeholder="كلمة المرور">
+        <select id="r-b" class="input-box">
+            <option value="sci">علمي</option>
+            <option value="lit">أدبي</option>
+        </select>
+        <button class="btn btn-main" onclick="portal.register()">تأكيد الحساب</button>
+        <button class="btn btn-sub" onclick="portal.go('v-login')">لديك حساب؟ ادخل هنا</button>
+    </div>
 
-        let db, auth, cloud = false;
-        let user = null, data = null, pinIn = "";
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ali_essam_v3_global';
+    <!-- Dashboard -->
+    <div id="v-main" class="view">
+        <h1 id="user-title">مرحباً بك</h1>
+        <div id="items-list" style="padding-bottom:100px"></div>
+        <button style="position:fixed; bottom:100px; left:30px; width:60px; height:60px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:24px; box-shadow:0 10px 20px rgba(0,0,0,0.4)" onclick="portal.addItem()">+</button>
+    </div>
 
-        const core = {
-            async start() {
-                this.buildPad();
-                this.show('v-login');
-                document.getElementById('app').classList.add('app-ready');
+    <!-- Nav -->
+    <nav id="nav" class="bottom-nav">
+        <div class="nav-tab active" onclick="portal.go('v-main')"><i data-lucide="home"></i><br>الرئيسية</div>
+        <div class="nav-tab" onclick="portal.logout()"><i data-lucide="log-out"></i><br>خروج</div>
+    </nav>
+</div>
+
+<script type="module">
+    // استيراد Firebase بطريقة متوافقة مع جميع أنواع الاستضافة
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    let db, auth, user = null, data = null;
+    const APP_PATH = "ali_essam_v5_pro";
+
+    const portal = {
+        async init() {
+            try {
+                const config = JSON.parse(__firebase_config);
+                const app = initializeApp(config);
+                db = getFirestore(app);
+                auth = getAuth(app);
                 
-                try {
-                    const config = JSON.parse(__firebase_config);
-                    const app = initializeApp(config);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-                    await signInAnonymously(auth);
-                    cloud = true;
-                    document.getElementById('cloud-dot').classList.add('online');
-                    document.getElementById('cloud-label').innerText = "متصل سحابياً ✓";
-                } catch (e) {
-                    document.getElementById('cloud-label').innerText = "نمط أوفلاين (محدود)";
-                }
+                // تفعيل التخزين المحلي لضمان العمل حتى عند حظر الشبكة
+                try { await enableIndexedDbPersistence(db); } catch(e){}
 
-                const saved = localStorage.getItem("SID");
-                if (saved) {
-                    const local = JSON.parse(localStorage.getItem("LDB") || "{}");
-                    if (local[saved]) {
-                        user = saved; data = local[saved];
-                        this.switchTab('sch');
-                    }
-                }
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 600);
-            },
-
-            show(id) {
-                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-                document.getElementById(id).classList.add('active');
-                document.getElementById('main-nav').style.display = (['v-sch', 'v-grd'].includes(id)) ? 'flex' : 'none';
-                if(window.lucide) lucide.createIcons();
-            },
-
-            async register() {
-                const u = document.getElementById('r-user').value.trim().toLowerCase();
-                const p = document.getElementById('r-pass').value;
-                const b = document.getElementById('r-branch').value;
-                const s = document.getElementById('r-pin').value;
-
-                if(!u || !p || s.length !== 4) return alert("يرجى إكمال البيانات بدقة");
-
-                const obj = { p: btoa(p), b, pin: s, sch: [], grd: [] };
-
-                if(cloud) {
-                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
-                    if((await getDoc(ref)).exists()) return alert("عذراً، هذا الاسم محجوز بالفعل");
-                    await setDoc(ref, obj);
-                }
-
-                this.localSync(u, obj);
-                alert("تم إنشاء حسابك بنجاح! يمكنك الآن الدخول.");
-                this.show('v-login');
-            },
-
-            async login() {
-                const u = document.getElementById('l-user').value.trim().toLowerCase();
-                const p = document.getElementById('l-pass').value;
-                if(!u || !p) return;
-
-                let target = null;
-                if(cloud) {
-                    const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u));
-                    if(snap.exists()) target = snap.data();
-                }
-                if(!target) target = JSON.parse(localStorage.getItem("LDB") || "{}")[u];
-
-                if(target && atob(target.p) === p) {
-                    user = u; data = target;
-                    this.localSync(u, target);
-                    localStorage.setItem("SID", u);
-                    this.switchTab('sch');
-                } else {
-                    alert("خطأ في البيانات أو لا توجد مزامنة");
-                }
-            },
-
-            localSync(u, d) {
-                let ldb = JSON.parse(localStorage.getItem("LDB") || "{}");
-                ldb[u] = d;
-                localStorage.setItem("LDB", JSON.stringify(ldb));
-            },
-
-            async commit() {
-                this.localSync(user, data);
-                if(cloud) {
-                    try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', user), data); } catch(e){}
-                }
-            },
-
-            switchTab(t) {
-                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-                document.getElementById('n-' + t).classList.add('active');
-                t === 'sch' ? this.renderSch() : this.renderGrd();
-                this.show('v-' + t);
-            },
-
-            renderSch() {
-                const list = document.getElementById('list-sch');
-                list.innerHTML = data.sch.length ? "" : `<div style="text-align:center; padding:40px; opacity:0.3"><i data-lucide="calendar-x" style="width:50px; height:50px; margin-bottom:10px"></i><p>جدولك فارغ حالياً</p></div>`;
-                data.sch.forEach((it, i) => {
-                    const d = document.createElement('div'); d.className = "item-card";
-                    d.innerHTML = `<div class="item-icon"><i data-lucide="clock"></i></div><div class="item-info"><b>${it.s}</b><span>الوقت: ${it.t}</span></div><div style="color:var(--error)" onclick="window.core.del('sch',${i})"><i data-lucide="trash"></i></div>`;
-                    list.appendChild(d);
-                });
-                lucide.createIcons();
-            },
-
-            renderGrd() {
-                const list = document.getElementById('list-grd');
-                list.innerHTML = data.grd.length ? "" : `<div style="text-align:center; padding:40px; opacity:0.3"><i data-lucide="award" style="width:50px; height:50px; margin-bottom:10px"></i><p>لا توجد درجات مسجلة</p></div>`;
-                data.grd.forEach((it, i) => {
-                    const d = document.createElement('div'); d.className = "item-card";
-                    d.innerHTML = `<div class="item-icon"><i data-lucide="check-circle"></i></div><div class="item-info"><b>${it.s}</b><span>${it.e}</span></div><div class="item-badge">${it.v}</div><div style="color:var(--error); margin-right:12px" onclick="window.core.del('grd',${i})"><i data-lucide="trash"></i></div>`;
-                    list.appendChild(d);
-                });
-                lucide.createIcons();
-            },
-
-            prepAdd(type) {
-                const box = document.getElementById('add-form'); box.innerHTML = "";
-                const subs = { 
-                    sci: ["إسلامية", "عربي", "إنكليزي", "أحياء", "رياضيات", "كيمياء", "فيزياء"], 
-                    lit: ["إسلامية", "عربي", "إنكليزي", "تاريخ", "جغرافية", "اقتصاد", "رياضيات"] 
-                };
-                const myList = subs[data.b] || subs.sci;
-                let sel = `<select id="f-s" class="field">${myList.map(s=>`<option>${s}</option>`).join('')}</select>`;
-
-                if(type === 'sch') {
-                    document.getElementById('add-title').innerText = "إضافة درس";
-                    box.innerHTML = sel + `<input type="time" id="f-t" class="field" style="margin-top:10px">`;
-                    document.getElementById('save-btn').onclick = async () => {
-                        data.sch.push({ s: document.getElementById('f-s').value, t: document.getElementById('f-t').value });
-                        await this.commit(); this.switchTab('sch');
-                    };
-                } else {
-                    document.getElementById('add-title').innerText = "إضافة درجة";
-                    box.innerHTML = sel + `<select id="f-e" class="field" style="margin-top:10px"><option>شهر 1</option><option>شهر 2</option><option>نصف السنة</option><option>وزاري</option></select><input type="number" id="f-v" class="field" style="margin-top:10px" placeholder="الدرجة">`;
-                    document.getElementById('save-btn').onclick = async () => {
-                        data.grd.push({ s: document.getElementById('f-s').value, e: document.getElementById('f-e').value, v: document.getElementById('f-v').value });
-                        await this.commit(); this.switchTab('grd');
-                    };
-                }
-                this.show('v-add');
-            },
-
-            async del(key, i) {
-                data[key].splice(i, 1);
-                await this.commit();
-                key === 'sch' ? this.renderSch() : this.renderGrd();
-            },
-
-            logout() { localStorage.removeItem("SID"); location.reload(); },
-
-            buildPad() {
-                const p = document.getElementById('numpad');
-                [1,2,3,4,5,6,7,8,9,0].forEach(n => {
-                    const b = document.createElement('div'); b.className = "num-btn"; b.innerText = n;
-                    b.onclick = () => this.press(n); p.appendChild(b);
-                });
-            },
-
-            async press(n) {
-                if(pinIn.length < 4) {
-                    pinIn += n;
-                    document.querySelectorAll('.pin-dot').forEach((d, i) => d.classList.toggle('fill', i < pinIn.length));
-                    if(pinIn.length === 4) {
-                        const u = document.getElementById('rec-user').value.trim().toLowerCase();
-                        let target = null;
-                        if(cloud) target = (await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u))).data();
-                        if(!target) target = JSON.parse(localStorage.getItem("LDB") || "{}")[u];
-
-                        if(target && target.pin === pinIn) {
-                            const res = document.getElementById('res-box');
-                            res.innerHTML = `تم التحقق! كلمة مرورك هي:<br><b style="color:var(--primary); font-size:24px">${atob(target.p)}</b>`;
-                            res.style.display = "block";
-                        } else {
-                            alert("البيانات خاطئة"); pinIn = ""; 
-                            document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('fill'));
-                        }
-                    }
-                }
+                await signInAnonymously(auth);
+                document.getElementById('cloud-status').classList.add('active');
+                document.getElementById('cloud-label').innerText = "متصل سحابياً ✓";
+            } catch (e) {
+                document.getElementById('cloud-label').innerText = "وضع الأوفلاين";
             }
-        };
 
-        window.core = core;
-        window.onload = () => core.start();
-    </script>
+            const sid = localStorage.getItem("SID");
+            if (sid) {
+                user = sid;
+                await this.pull();
+                if(data) this.go('v-main');
+            }
+
+            document.getElementById('splash').style.display = 'none';
+            if(window.lucide) lucide.createIcons();
+        },
+
+        go(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav').style.display = (id === 'v-main') ? 'flex' : 'none';
+        },
+
+        async register() {
+            const u = document.getElementById('r-u').value.trim();
+            const p = document.getElementById('r-p').value;
+            const b = document.getElementById('r-b').value;
+            if(!u || !p) return alert("أكمل البيانات");
+
+            const ref = doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', u);
+            const snap = await getDoc(ref);
+            if(snap.exists()) return alert("الاسم مستخدم");
+
+            const obj = { p: btoa(p), b, list: [] };
+            await setDoc(ref, obj);
+            localStorage.setItem("SID", u);
+            user = u; data = obj;
+            this.go('v-main');
+            this.render();
+        },
+
+        async login() {
+            const u = document.getElementById('l-u').value.trim();
+            const p = document.getElementById('l-p').value;
+            const ref = doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', u);
+            const snap = await getDoc(ref);
+            
+            if(snap.exists() && atob(snap.data().p) === p) {
+                user = u; data = snap.data();
+                localStorage.setItem("SID", u);
+                this.go('v-main');
+                this.render();
+            } else {
+                alert("بيانات خاطئة");
+            }
+        },
+
+        async pull() {
+            try {
+                const snap = await getDoc(doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', user));
+                if(snap.exists()) {
+                    data = snap.data();
+                    this.render();
+                }
+            } catch(e){}
+        },
+
+        async addItem() {
+            const title = prompt("اسم المادة أو الملاحظة؟");
+            if(title) {
+                data.list.push({ t: title, d: new Date().toLocaleDateString() });
+                this.render();
+                await setDoc(doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', user), data);
+            }
+        },
+
+        render() {
+            document.getElementById('user-title').innerText = `أهلاً ${user}`;
+            const list = document.getElementById('items-list');
+            list.innerHTML = data.list.map((it, i) => `
+                <div class="item-card">
+                    <div class="item-info"><b>${it.t}</b><span>${it.d}</span></div>
+                    <i data-lucide="trash-2" style="color:#ef4444; cursor:pointer" onclick="portal.del(${i})"></i>
+                </div>
+            `).join('') || '<p style="text-align:center; opacity:0.3; margin-top:50px">قائمتك فارغة</p>';
+            lucide.createIcons();
+        },
+
+        async del(i) {
+            data.list.splice(i, 1);
+            this.render();
+            await setDoc(doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', user), data);
+        },
+
+        logout() {
+            localStorage.removeItem("SID");
+            location.reload();
+        }
+    };
+
+    window.portal = portal;
+    window.onload = () => portal.init();
+</script>
 </body>
 </html>
 
