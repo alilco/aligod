@@ -2,232 +2,750 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة علي عصام التعليمية</title>
-    <!-- استدعاء المكتبات عبر روابط CDN موثوقة ومدعومة عالمياً -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الطالب الذكية - السادس العلمي والأدبي</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --bg: #0b0f1a;
-            --card: #161b2a;
-            --text: #ffffff;
-            --text-dim: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
+            --primary-color: #4f46e5;
+            --secondary-color: #818cf8;
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --white: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        .app-shell { width: 100%; max-width: 500px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; border-left: 1px solid var(--border); border-right: 1px solid var(--border); position: relative; }
-        
-        /* شريط الحالة العلوي */
-        .status-header { padding: 12px; font-size: 12px; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); }
-        .indicator { width: 8px; height: 8px; border-radius: 50%; background: #475569; }
-        .indicator.active { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-        /* شاشة التحميل */
-        #splash { position: absolute; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .loader { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* حاوية الإشعارات */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
 
-        /* الشاشات */
-        .view { display: none; padding: 25px; flex: 1; overflow-y: auto; flex-direction: column; }
-        .view.active { display: flex; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .toast {
+            background: var(--text-color);
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: 50px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-align: center;
+            font-size: 0.9rem;
+        }
 
-        /* نماذج الإدخال */
-        h1 { font-size: 26px; margin-bottom: 20px; text-align: right; }
-        .input-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #fff; width: 100%; margin-bottom: 15px; font-size: 16px; outline: none; text-align: right; }
-        .btn { border-radius: 12px; padding: 16px; font-weight: bold; border: none; cursor: pointer; width: 100%; font-size: 16px; transition: 0.3s; margin-top: 10px; }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-sub { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+        .toast.show {
+            opacity: 1;
+        }
 
-        /* البطاقات */
-        .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .item-info { text-align: right; }
-        .item-info b { display: block; font-size: 16px; }
-        .item-info span { color: var(--text-dim); font-size: 12px; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
 
-        /* التنقل */
-        .bottom-nav { position: absolute; bottom: 20px; left: 15px; right: 15px; background: rgba(22, 27, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 20px; display: none; padding: 12px; justify-content: space-around; }
-        .nav-tab { color: var(--text-dim); text-align: center; font-size: 11px; flex: 1; cursor: pointer; }
-        .nav-tab.active { color: var(--primary); }
+        /* شاشات الدخول والتسجيل */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .auth-box {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-box h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #4338ca;
+        }
+
+        button.secondary-btn {
+            background-color: transparent;
+            color: var(--primary-color);
+            margin-top: 15px;
+            border: 1px solid var(--primary-color);
+        }
+
+        button.secondary-btn:hover {
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        /* لوحة التحكم */
+        #dashboard {
+            display: none; /* مخفي افتراضياً */
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .user-info h3 {
+            color: var(--primary-color);
+        }
+
+        .user-info span {
+            font-size: 0.9rem;
+            background: #e0e7ff;
+            color: var(--primary-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .logout-btn {
+            background-color: var(--danger);
+            width: auto;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .logout-btn:hover {
+            background-color: #dc2626;
+        }
+
+        /* التبويبات */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: auto;
+            margin: 0;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .tab-btn.active {
+            background-color: #e0e7ff;
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* بطاقات الإدخال */
+        .card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .card h3 {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 10px;
+        }
+
+        /* الجداول */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f9fafb;
+            color: #4b5563;
+            font-weight: 600;
+        }
+
+        /* الجدول الزمني */
+        .schedule-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .schedule-item {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 8px;
+            border-right: 4px solid var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .schedule-info strong {
+            display: block;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .schedule-time {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .break-tag {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .schedule-list {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div id="splash">
-    <div class="loader"></div>
-    <p style="margin-top:20px; color:var(--text-dim)">جاري الاتصال بسحابة علي عصام...</p>
-</div>
+    <!-- حاوية الإشعارات -->
+    <div id="toast-container"></div>
 
-<div class="app-shell">
-    <div class="status-header">
-        <div id="cloud-status" class="indicator"></div>
-        <span id="cloud-label">فحص الاتصال...</span>
-    </div>
-
-    <!-- Login -->
-    <div id="v-login" class="view">
-        <h1>تسجيل الدخول</h1>
-        <input type="text" id="l-u" class="input-box" placeholder="اسم المستخدم">
-        <input type="password" id="l-p" class="input-box" placeholder="كلمة المرور">
-        <button class="btn btn-main" onclick="portal.login()">دخول</button>
-        <button class="btn btn-sub" onclick="portal.go('v-reg')">إنشاء حساب جديد</button>
-    </div>
-
-    <!-- Register -->
-    <div id="v-reg" class="view">
-        <h1>حساب جديد</h1>
-        <input type="text" id="r-u" class="input-box" placeholder="اختر اسم مستخدم">
-        <input type="password" id="r-p" class="input-box" placeholder="كلمة المرور">
-        <select id="r-b" class="input-box">
-            <option value="sci">علمي</option>
-            <option value="lit">أدبي</option>
-        </select>
-        <button class="btn btn-main" onclick="portal.register()">تأكيد الحساب</button>
-        <button class="btn btn-sub" onclick="portal.go('v-login')">لديك حساب؟ ادخل هنا</button>
-    </div>
-
-    <!-- Dashboard -->
-    <div id="v-main" class="view">
-        <h1 id="user-title">مرحباً بك</h1>
-        <div id="items-list" style="padding-bottom:100px"></div>
-        <button style="position:fixed; bottom:100px; left:30px; width:60px; height:60px; border-radius:50%; background:var(--primary); color:white; border:none; font-size:24px; box-shadow:0 10px 20px rgba(0,0,0,0.4)" onclick="portal.addItem()">+</button>
-    </div>
-
-    <!-- Nav -->
-    <nav id="nav" class="bottom-nav">
-        <div class="nav-tab active" onclick="portal.go('v-main')"><i data-lucide="home"></i><br>الرئيسية</div>
-        <div class="nav-tab" onclick="portal.logout()"><i data-lucide="log-out"></i><br>خروج</div>
-    </nav>
-</div>
-
-<script type="module">
-    // استيراد Firebase بطريقة متوافقة مع جميع أنواع الاستضافة
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-    let db, auth, user = null, data = null;
-    const APP_PATH = "ali_essam_v5_pro";
-
-    const portal = {
-        async init() {
-            try {
-                const config = JSON.parse(__firebase_config);
-                const app = initializeApp(config);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                // تفعيل التخزين المحلي لضمان العمل حتى عند حظر الشبكة
-                try { await enableIndexedDbPersistence(db); } catch(e){}
-
-                await signInAnonymously(auth);
-                document.getElementById('cloud-status').classList.add('active');
-                document.getElementById('cloud-label').innerText = "متصل سحابياً ✓";
-            } catch (e) {
-                document.getElementById('cloud-label').innerText = "وضع الأوفلاين";
-            }
-
-            const sid = localStorage.getItem("SID");
-            if (sid) {
-                user = sid;
-                await this.pull();
-                if(data) this.go('v-main');
-            }
-
-            document.getElementById('splash').style.display = 'none';
-            if(window.lucide) lucide.createIcons();
-        },
-
-        go(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.getElementById('nav').style.display = (id === 'v-main') ? 'flex' : 'none';
-        },
-
-        async register() {
-            const u = document.getElementById('r-u').value.trim();
-            const p = document.getElementById('r-p').value;
-            const b = document.getElementById('r-b').value;
-            if(!u || !p) return alert("أكمل البيانات");
-
-            const ref = doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', u);
-            const snap = await getDoc(ref);
-            if(snap.exists()) return alert("الاسم مستخدم");
-
-            const obj = { p: btoa(p), b, list: [] };
-            await setDoc(ref, obj);
-            localStorage.setItem("SID", u);
-            user = u; data = obj;
-            this.go('v-main');
-            this.render();
-        },
-
-        async login() {
-            const u = document.getElementById('l-u').value.trim();
-            const p = document.getElementById('l-p').value;
-            const ref = doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', u);
-            const snap = await getDoc(ref);
-            
-            if(snap.exists() && atob(snap.data().p) === p) {
-                user = u; data = snap.data();
-                localStorage.setItem("SID", u);
-                this.go('v-main');
-                this.render();
-            } else {
-                alert("بيانات خاطئة");
-            }
-        },
-
-        async pull() {
-            try {
-                const snap = await getDoc(doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', user));
-                if(snap.exists()) {
-                    data = snap.data();
-                    this.render();
-                }
-            } catch(e){}
-        },
-
-        async addItem() {
-            const title = prompt("اسم المادة أو الملاحظة؟");
-            if(title) {
-                data.list.push({ t: title, d: new Date().toLocaleDateString() });
-                this.render();
-                await setDoc(doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', user), data);
-            }
-        },
-
-        render() {
-            document.getElementById('user-title').innerText = `أهلاً ${user}`;
-            const list = document.getElementById('items-list');
-            list.innerHTML = data.list.map((it, i) => `
-                <div class="item-card">
-                    <div class="item-info"><b>${it.t}</b><span>${it.d}</span></div>
-                    <i data-lucide="trash-2" style="color:#ef4444; cursor:pointer" onclick="portal.del(${i})"></i>
+    <!-- 1. واجهة تسجيل الدخول -->
+    <div id="login-screen" class="auth-container">
+        <div class="auth-box">
+            <h2>تسجيل الدخول</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="login-username" placeholder="أدخل اسمك" required>
                 </div>
-            `).join('') || '<p style="text-align:center; opacity:0.3; margin-top:50px">قائمتك فارغة</p>';
-            lucide.createIcons();
-        },
+                <button type="submit">دخول</button>
+            </form>
+            <button class="secondary-btn" onclick="showRegister()">ليس لديك حساب؟ سجل الآن</button>
+        </div>
+    </div>
 
-        async del(i) {
-            data.list.splice(i, 1);
-            this.render();
-            await setDoc(doc(db, 'artifacts', APP_PATH, 'public', 'data', 'users', user), data);
-        },
+    <!-- 2. واجهة إنشاء حساب -->
+    <div id="register-screen" class="auth-container" style="display: none;">
+        <div class="auth-box">
+            <h2>إنشاء حساب جديد</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="reg-username" placeholder="اختر اسماً لك" required>
+                </div>
+                <div class="form-group">
+                    <label>القسم الدراسي</label>
+                    <select id="reg-branch" required>
+                        <option value="" disabled selected>اختر القسم...</option>
+                        <option value="scientific">السادس العلمي</option>
+                        <option value="literary">السادس الأدبي</option>
+                    </select>
+                </div>
+                <button type="submit">تسجيل</button>
+            </form>
+            <button class="secondary-btn" onclick="showLogin()">لديك حساب بالفعل؟ دخول</button>
+        </div>
+    </div>
 
-        logout() {
-            localStorage.removeItem("SID");
-            location.reload();
+    <!-- 3. لوحة التحكم الرئيسية -->
+    <div id="dashboard">
+        <header>
+            <div class="user-info">
+                <h3 id="display-name">اسم الطالب</h3>
+                <span id="display-branch">القسم</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+        </header>
+
+        <!-- التبويبات -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('grades')">الدرجات</button>
+            <button class="tab-btn" onclick="switchTab('schedule')">جدول المذاكرة</button>
+        </div>
+
+        <!-- محتوى الدرجات -->
+        <div id="tab-grades" class="tab-content active">
+            <!-- إضافة درجة -->
+            <div class="card">
+                <h3>إضافة درجة جديدة</h3>
+                <form id="grade-form">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="form-group">
+                            <label>المادة</label>
+                            <select id="grade-subject" required>
+                                <!-- يتم ملؤها بالجافاسكريبت -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الفصل/الشهر</label>
+                            <select id="grade-term" required>
+                                <option value="month1">الشهر الأول</option>
+                                <option value="month2">الشهر الثاني</option>
+                                <option value="month3">الشهر الثالث</option>
+                                <option value="midterm">نصف السنة</option>
+                                <option value="final">النهائي</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الدرجة</label>
+                            <input type="number" id="grade-score" min="0" max="100" placeholder="مثلاً: 95" required>
+                        </div>
+                    </div>
+                    <button type="submit">حفظ الدرجة</button>
+                </form>
+            </div>
+
+            <!-- جدول الدرجات -->
+            <div class="card">
+                <h3>سجل الدرجات</h3>
+                <div class="table-container">
+                    <table id="grades-table">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>الفصل</th>
+                                <th>الدرجة</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- البيانات تظهر هنا -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- محتوى جدول المذاكرة -->
+        <div id="tab-schedule" class="tab-content">
+            <!-- إضافة وقت مذاكرة -->
+            <div class="card">
+                <h3>تخطيط وقت المذاكرة</h3>
+                <form id="schedule-form">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="form-group">
+                            <label>المادة</label>
+                            <select id="schedule-subject" required>
+                                <!-- يتم ملؤها بالجافاسكريبت -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>مدة المذاكرة (بالدقائق)</label>
+                            <input type="number" id="study-duration" placeholder="مثلاً: 60" required>
+                        </div>
+                        <div class="form-group">
+                            <label>مدة الاستراحة (بالدقائق)</label>
+                            <input type="number" id="break-duration" placeholder="مثلاً: 10" required>
+                        </div>
+                    </div>
+                    <button type="submit">إضافة للجدول</button>
+                </form>
+            </div>
+
+            <!-- عرض الجدول -->
+            <div class="card">
+                <h3>جدولك اليومي</h3>
+                <ul id="schedule-list" class="schedule-list">
+                    <!-- عناصر الجدول تظهر هنا -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === قواعد البيانات الثابتة ===
+        const SUBJECTS = {
+            scientific: [
+                "رياضيات", "انكليزي", "عربي", "فيزياء", 
+                "كيمياء", "احياء", "اسلامية"
+            ],
+            literary: [
+                "رياضيات", "انكليزي", "عربي", "تاريخ", 
+                "اسلامية", "اقتصاد", "جغرافية"
+            ]
+        };
+
+        const TERMS = {
+            month1: "الشهر الأول",
+            month2: "الشهر الثاني",
+            month3: "الشهر الثالث",
+            midterm: "نصف السنة",
+            final: "النهائي"
+        };
+
+        // === إدارة الحالة (State Management) ===
+        let currentUser = null;
+
+        // === دوال المساعدة (Utility Functions) ===
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
-    };
 
-    window.portal = portal;
-    window.onload = () => portal.init();
-</script>
+        // === إدارة التخزين المحلي (LocalStorage) ===
+        function getUsers() {
+            const users = localStorage.getItem('app_users');
+            return users ? JSON.parse(users) : [];
+        }
+
+        function saveUser(user) {
+            const users = getUsers();
+            users.push(user);
+            localStorage.setItem('app_users', JSON.stringify(users));
+        }
+
+        function updateUserInStorage(updatedUser) {
+            let users = getUsers();
+            const index = users.findIndex(u => u.username === updatedUser.username);
+            if (index !== -1) {
+                users[index] = updatedUser;
+                localStorage.setItem('app_users', JSON.stringify(users));
+                localStorage.setItem('current_user', JSON.stringify(updatedUser)); // تحديث الجلسة الحالية
+                currentUser = updatedUser;
+            }
+        }
+
+        // === التنقل بين الشاشات ===
+        function showRegister() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('register-screen').style.display = 'flex';
+        }
+
+        function showLogin() {
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+
+        // === منطق المصادقة (Auth Logic) ===
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const users = getUsers();
+            
+            const user = users.find(u => u.username === username);
+            
+            if (user) {
+                loginSuccess(user);
+            } else {
+                showToast('اسم المستخدم غير موجود، يرجى التسجيل أولاً', 'error');
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const branch = document.getElementById('reg-branch').value;
+            
+            if (!username || !branch) return;
+
+            const users = getUsers();
+            if (users.find(u => u.username === username)) {
+                showToast('اسم المستخدم موجود مسبقاً', 'error');
+                return;
+            }
+
+            const newUser = {
+                username: username,
+                branch: branch,
+                grades: [], // مصفوفة لتخزين الدرجات {subject, term, score}
+                schedule: [] // مصفوفة لتخزين الجدول {subject, duration, break}
+            };
+
+            saveUser(newUser);
+            loginSuccess(newUser);
+            showToast('تم إنشاء الحساب بنجاح!');
+        });
+
+        function loginSuccess(user) {
+            currentUser = user;
+            localStorage.setItem('current_user', JSON.stringify(user));
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            loadDashboardData();
+        }
+
+        function logout() {
+            localStorage.removeItem('current_user');
+            currentUser = null;
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('login-form').reset();
+            showToast('تم تسجيل الخروج');
+        }
+
+        // === منطق لوحة التحكم (Dashboard Logic) ===
+        function loadDashboardData() {
+            if (!currentUser) return;
+
+            // عرض معلومات المستخدم
+            document.getElementById('display-name').textContent = currentUser.username;
+            const branchText = currentUser.branch === 'scientific' ? 'السادس العلمي' : 'السادس الأدبي';
+            document.getElementById('display-branch').textContent = branchText;
+
+            // تحميل المواد حسب القسم
+            const subjectOptions = SUBJECTS[currentUser.branch];
+            
+            // ملء القوائم المنسدلة
+            const populateSelect = (id) => {
+                const select = document.getElementById(id);
+                select.innerHTML = '<option value="" disabled selected>اختر المادة...</option>';
+                subjectOptions.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub;
+                    option.textContent = sub;
+                    select.appendChild(option);
+                });
+            };
+
+            populateSelect('grade-subject');
+            populateSelect('schedule-subject');
+
+            // عرض البيانات المحفوظة
+            renderGradesTable();
+            renderSchedule();
+        }
+
+        function switchTab(tabName) {
+            // تحديث الأزرار
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // تحديث المحتوى
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // === إدارة الدرجات ===
+        document.getElementById('grade-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const subject = document.getElementById('grade-subject').value;
+            const term = document.getElementById('grade-term').value;
+            const score = parseInt(document.getElementById('grade-score').value);
+
+            // البحث عن درجة سابلة لنفس المادة والفصل وتحديثها، أو إضافة جديدة
+            const existingIndex = currentUser.grades.findIndex(g => g.subject === subject && g.term === term);
+            
+            if (existingIndex !== -1) {
+                currentUser.grades[existingIndex].score = score;
+                showToast('تم تحديث الدرجة');
+            } else {
+                currentUser.grades.push({ subject, term, score });
+                showToast('تم إضافة الدرجة');
+            }
+
+            updateUserInStorage(currentUser);
+            renderGradesTable();
+            this.reset();
+        });
+
+        function renderGradesTable() {
+            const tbody = document.querySelector('#grades-table tbody');
+            tbody.innerHTML = '';
+
+            if (currentUser.grades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">لا توجد درجات مسجلة بعد</td></tr>';
+                return;
+            }
+
+            currentUser.grades.forEach(g => {
+                const row = document.createElement('tr');
+                
+                // تحديد النجاح/الرسوب
+                let status = '';
+                let color = '';
+                if (g.score >= 50) {
+                    status = 'ناجح';
+                    color = 'color: var(--success)';
+                } else {
+                    status = 'راسب';
+                    color = 'color: var(--danger)';
+                }
+
+                row.innerHTML = `
+                    <td><strong>${g.subject}</strong></td>
+                    <td>${TERMS[g.term]}</td>
+                    <td>${g.score}</td>
+                    <td style="${color}">${status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // === إدارة جدول المذاكرة ===
+        document.getElementById('schedule-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const subject = document.getElementById('schedule-subject').value;
+            const studyDuration = document.getElementById('study-duration').value;
+            const breakDuration = document.getElementById('break-duration').value;
+
+            currentUser.schedule.push({ subject, studyDuration, breakDuration });
+            updateUserInStorage(currentUser);
+            renderSchedule();
+            showToast('تمت الإضافة للجدول');
+            this.reset();
+        });
+
+        function renderSchedule() {
+            const list = document.getElementById('schedule-list');
+            list.innerHTML = '';
+
+            if (currentUser.schedule.length === 0) {
+                list.innerHTML = '<p style="text-align:center; width:100%;">الجدول فارغ</p>';
+                return;
+            }
+
+            currentUser.schedule.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'schedule-item';
+                li.innerHTML = `
+                    <div class="schedule-info">
+                        <strong>${item.subject}</strong>
+                        <span class="schedule-time">
+                            مذاكرة: ${item.studyDuration} دقيقة | 
+                            <span class="break-tag">استراحة: ${item.breakDuration} دقيقة</span>
+                        </span>
+                    </div>
+                    <button onclick="removeScheduleItem(${index})" style="width:auto; padding:5px 10px; font-size:0.8rem; background:#fee2e2; color:#b91c1c;">حذف</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function removeScheduleItem(index) {
+            currentUser.schedule.splice(index, 1);
+            updateUserInStorage(currentUser);
+            renderSchedule();
+            showToast('تم حذف المهمة', 'error');
+        }
+
+        // === التحقق من الجلسة عند التحميل ===
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('current_user');
+            if (savedUser) {
+                loginSuccess(JSON.parse(savedUser));
+            }
+        });
+
+    </script>
 </body>
 </html>
-
