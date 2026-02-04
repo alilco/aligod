@@ -2,166 +2,159 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ali Essam | Dev Suite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ali Essam | Dev Suite Mobile</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #0b1120; color: #e2e8f0; margin: 0; overflow-x: hidden; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #0b1120; color: #e2e8f0; margin: 0; padding-bottom: 70px; }
         
-        /* شاشة ترحيب Ali Essam */
+        /* شاشة ترحيب Ali Essam - خفيفة جداً */
         #branding-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #0b1120;
+            inset: 0; background: #0b1120;
             display: flex; justify-content: center; align-items: center;
-            z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s;
+            z-index: 9999; transition: opacity 0.6s ease, visibility 0.6s;
         }
         .name-animation {
-            font-size: 3rem; font-weight: bold; color: #38bdf8;
-            letter-spacing: 4px; animation: pulseFade 2s forwards;
+            font-size: 2.5rem; font-weight: bold; color: #38bdf8;
+            animation: pulseFade 1.8s forwards;
         }
         @keyframes pulseFade {
-            0% { opacity: 0; transform: translateY(10px); }
-            50% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-10px); }
+            0% { opacity: 0; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.05); }
         }
 
-        .glass { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; }
-        .sidebar { background: #0f172a; min-height: 100vh; }
+        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; }
         .tool-section { display: none; }
-        .tool-section.active { display: block; animation: slideUp 0.4s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .ltr { direction: ltr; text-align: left; font-family: monospace; }
+        .tool-section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .ltr { direction: ltr; text-align: left; font-family: 'Courier New', monospace; }
+        
+        /* شريط التنقل السفلي للموبايل */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #0f172a; border-top: 1px solid #1e293b;
+            display: flex; justify-content: space-around; padding: 12px; z-index: 1000;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row">
+<body class="md:flex md:pb-0">
 
     <div id="branding-overlay">
         <div class="name-animation">Ali Essam</div>
     </div>
 
-    <aside class="sidebar w-full md:w-72 p-6 border-l border-slate-800 flex-shrink-0">
-        <div class="flex items-center gap-3 mb-10 p-2 bg-slate-800/50 rounded-lg">
-            <div class="bg-blue-600 p-2 rounded-md"><i class="fas fa-terminal text-white"></i></div>
-            <div>
-                <h2 class="text-lg font-bold text-white leading-none">Ali Essam</h2>
-                <span class="text-[10px] text-blue-400 uppercase tracking-widest">Developer Tools</span>
-            </div>
+    <aside class="hidden md:flex flex-col w-72 p-6 bg-[#0f172a] border-l border-slate-800 min-h-screen">
+        <div class="mb-10 p-4 glass text-center">
+            <h2 class="text-xl font-bold text-white">Ali Essam</h2>
+            <p class="text-xs text-blue-400 uppercase tracking-widest">Dev Studio</p>
         </div>
-        
-        <nav class="space-y-2">
-            <button onclick="showSection('home')" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600/20 transition text-slate-400 focus:text-blue-400 focus:bg-blue-600/10">
-                <i class="fas fa-house"></i> الرئيسية
-            </button>
-            <button onclick="showSection('curl-tool')" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600/20 transition text-slate-400 focus:text-blue-400 focus:bg-blue-600/10">
-                <i class="fas fa-exchange-alt"></i> منسق أكواد cURL
-            </button>
-            <button onclick="showSection('pass-gen')" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-blue-600/20 transition text-slate-400 focus:text-blue-400 focus:bg-blue-600/10">
-                <i class="fas fa-shield-alt"></i> مولد كلمات السر
-            </button>
+        <nav class="space-y-3">
+            <button onclick="showSection('home')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-blue-600/20 text-slate-400 transition"><i class="fas fa-home"></i> الرئيسية</button>
+            <button onclick="showSection('python-tool')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-blue-600/20 text-slate-400 transition"><i class="fab fa-python"></i> منسق بايثون</button>
+            <button onclick="showSection('curl-tool')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-blue-600/20 text-slate-400 transition"><i class="fas fa-code"></i> منسق cURL</button>
+            <button onclick="showSection('pass-gen')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-blue-600/20 text-slate-400 transition"><i class="fas fa-key"></i> كلمات السر</button>
         </nav>
     </aside>
 
-    <main class="flex-grow p-6 md:p-12">
+    <nav class="bottom-nav md:hidden">
+        <button onclick="showSection('home')" class="text-slate-400 flex flex-col items-center gap-1"><i class="fas fa-home"></i><span class="text-[10px]">الرئيسية</span></button>
+        <button onclick="showSection('python-tool')" class="text-slate-400 flex flex-col items-center gap-1"><i class="fab fa-python text-yellow-500"></i><span class="text-[10px]">بايثون</span></button>
+        <button onclick="showSection('curl-tool')" class="text-slate-400 flex flex-col items-center gap-1"><i class="fas fa-code text-blue-400"></i><span class="text-[10px]">cURL</span></button>
+        <button onclick="showSection('pass-gen')" class="text-slate-400 flex flex-col items-center gap-1"><i class="fas fa-key text-purple-400"></i><span class="text-[10px]">كلمات سر</span></button>
+    </nav>
+
+    <main class="flex-grow p-4 md:p-10">
         
         <section id="home" class="tool-section active">
-            <div class="max-w-2xl">
-                <h1 class="text-4xl font-bold mb-4">أهلاً بك في عالم <span class="text-blue-500">علي عصام</span></h1>
-                <p class="text-slate-400 text-lg mb-8">اختر أداة من القائمة الجانبية للبدء.</p>
-                <div class="glass p-6 border-r-4 border-blue-500">
-                    <p>هذا الموقع صُمم خصيصاً لمساعدة المبرمجين في المهام اليومية المتكررة.</p>
-                </div>
+            <div class="glass p-6 text-center md:text-right">
+                <h1 class="text-2xl md:text-4xl font-bold mb-2">أهلاً بك في منصة <span class="text-blue-400">علي عصام</span></h1>
+                <p class="text-slate-400">أدوات برمجية سريعة في جيبك.</p>
+            </div>
+        </section>
+
+        <section id="python-tool" class="tool-section">
+            <h2 class="text-xl font-bold mb-4 text-yellow-500"><i class="fab fa-python ml-2"></i> تنسيق كود Python</h2>
+            <div class="glass p-4">
+                <textarea id="py-input" placeholder="ضع كود بايثون غير المرتب هنا..." class="w-full bg-[#0b1120] p-4 rounded-xl h-48 ltr text-sm border border-slate-700 focus:border-yellow-500 outline-none mb-4"></textarea>
+                <button onclick="formatPython()" class="w-full bg-yellow-600 p-3 rounded-xl font-bold mb-4">تنسيق تلقائي 🐍</button>
+                <pre id="py-output" class="w-full bg-black/40 p-4 rounded-xl ltr text-blue-300 text-sm overflow-x-auto min-h-[100px] border border-slate-800"></pre>
             </div>
         </section>
 
         <section id="curl-tool" class="tool-section">
-            <h2 class="text-2xl font-bold mb-6 text-blue-400">تنسيق وتعديل أوامر cURL</h2>
-            <div class="glass p-6">
-                <textarea id="curl-input" placeholder="ألصق كود cURL هنا..." 
-                class="w-full bg-slate-900 p-4 rounded-xl h-32 outline-none border border-slate-700 focus:border-blue-500 ltr text-sm mb-4"></textarea>
-                
-                <button onclick="formatCurl()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-bold transition mb-6">تنسيق الكود ✨</button>
-
-                <div class="relative">
-                    <pre id="curl-output" class="w-full bg-black/50 p-4 rounded-xl min-h-[100px] ltr text-green-400 text-sm border border-slate-800 overflow-x-auto"></pre>
-                    <button onclick="copyResult('curl-output')" class="absolute top-2 left-2 text-slate-500 hover:text-white"><i class="fas fa-copy"></i></button>
-                </div>
+            <h2 class="text-xl font-bold mb-4 text-blue-400"><i class="fas fa-terminal ml-2"></i> منسق cURL</h2>
+            <div class="glass p-4">
+                <textarea id="curl-input" placeholder="Paste curl command..." class="w-full bg-[#0b1120] p-4 rounded-xl h-32 ltr text-sm border border-slate-700 outline-none mb-4"></textarea>
+                <button onclick="formatCurl()" class="w-full bg-blue-600 p-3 rounded-xl font-bold mb-4">ترتيب الطلب ⚡</button>
+                <pre id="curl-output" class="w-full bg-black/40 p-4 rounded-xl ltr text-green-400 text-sm overflow-x-auto border border-slate-800"></pre>
             </div>
         </section>
 
         <section id="pass-gen" class="tool-section">
-            <h2 class="text-2xl font-bold mb-6 text-purple-400">مولد كلمات السر القوية</h2>
-            <div class="glass p-8 max-w-md">
-                <div id="pass-display" class="bg-black p-4 rounded-lg mb-4 text-center font-mono text-xl text-blue-400 border border-slate-700">********</div>
-                <button onclick="generatePass()" class="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg font-bold transition">توليد كلمة سر</button>
+            <h2 class="text-xl font-bold mb-4 text-purple-400">توليد كلمة سر آمنة</h2>
+            <div class="glass p-6 text-center">
+                <div id="pass-display" class="bg-black/50 p-4 rounded-xl mb-4 font-mono text-xl border border-slate-700">********</div>
+                <button onclick="generatePass()" class="w-full bg-purple-600 p-3 rounded-xl font-bold">توليد الآن</button>
             </div>
         </section>
 
     </main>
 
     <script>
-        // 1. إخفاء شاشة الترحيب عند التحميل
-        window.onload = function() {
+        // إخفاء الترحيب
+        window.onload = () => {
             setTimeout(() => {
-                const overlay = document.getElementById('branding-overlay');
-                if(overlay) {
-                    overlay.style.opacity = '0';
-                    setTimeout(() => overlay.style.visibility = 'hidden', 800);
-                }
-            }, 2000);
+                document.getElementById('branding-overlay').style.opacity = '0';
+                setTimeout(() => document.getElementById('branding-overlay').style.visibility = 'hidden', 600);
+            }, 1800);
         };
 
-        // 2. التنقل بين الأقسام
-        function showSection(sectionId) {
-            // إخفاء جميع الأقسام
-            const sections = document.querySelectorAll('.tool-section');
-            sections.forEach(s => s.classList.remove('active'));
-            
-            // إظهار القسم المطلوب
-            const activeSection = document.getElementById(sectionId);
-            if(activeSection) {
-                activeSection.classList.add('active');
-            }
+        function showSection(id) {
+            document.querySelectorAll('.tool-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
         }
 
-        // 3. تنسيق cURL
+        // منسق بايثون بسيط
+        function formatPython() {
+            let code = document.getElementById('py-input').value;
+            let lines = code.split('\n');
+            let formatted = "";
+            let indent = 0;
+            
+            lines.forEach(line => {
+                let trimmed = line.trim();
+                if(trimmed.endsWith(':')) {
+                    formatted += "    ".repeat(indent) + trimmed + "\n";
+                    indent++;
+                } else if (trimmed === "" ) {
+                    formatted += "\n";
+                } else {
+                    if(trimmed.startsWith('return') || trimmed.startsWith('pass') || trimmed.startsWith('break')) {
+                        formatted += "    ".repeat(indent) + trimmed + "\n";
+                        indent = Math.max(0, indent - 1);
+                    } else {
+                        formatted += "    ".repeat(indent) + trimmed + "\n";
+                    }
+                }
+            });
+            document.getElementById('py-output').innerText = formatted || "الكود سيظهر هنا...";
+        }
+
         function formatCurl() {
-            const input = document.getElementById('curl-input').value.trim();
-            const output = document.getElementById('curl-output');
-            
-            if (!input) {
-                alert("يرجى إدخال كود cURL أولاً");
-                return;
-            }
-
-            // عملية التنسيق
-            let formatted = input
-                .replace(/\s+-/g, ' \\\n  -')
-                .replace(/\s+--/g, ' \\\n  --');
-            
-            output.innerText = formatted;
+            let val = document.getElementById('curl-input').value;
+            document.getElementById('curl-output').innerText = val.replace(/\s-/g, ' \\\n  -');
         }
 
-        // 4. توليد كلمة سر
         function generatePass() {
-            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-            let password = "";
-            for (let i = 0; i < 16; i++) {
-                password += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            document.getElementById('pass-display').innerText = password;
-        }
-
-        // 5. وظيفة النسخ
-        function copyResult(elementId) {
-            const text = document.getElementById(elementId).innerText;
-            if(text && text !== "********") {
-                navigator.clipboard.writeText(text);
-                alert("تم النسخ إلى الحافظة!");
-            }
+            const c = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
+            let p = "";
+            for(let i=0; i<12; i++) p += c.charAt(Math.floor(Math.random()*c.length));
+            document.getElementById('pass-display').innerText = p;
         }
     </script>
 </body>
